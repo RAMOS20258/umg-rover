@@ -2,10 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import admin, auth, compiler, credentials
 
-app = FastAPI(
-    title="UMG Basic Rover API",
-    version="2.0.0"
-)
+app = FastAPI(title="UMG Basic Rover 1.0 API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,11 +25,4 @@ app.include_router(admin.router)
 
 @app.get("/")
 def root():
-    return {
-        "message": "UMG Basic Rover API funcionando",
-        "version": "2.0.0"
-    }
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+    return {"message": "UMG Basic Rover 2.0 API funcionando", "version": "1.2.0"}
