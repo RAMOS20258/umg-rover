@@ -3,7 +3,7 @@ import { useAuth } from "../App";
 import "../styles/dashboard.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
 
-const API = "http://localhost:8000";
+const API = "https://backend-production-793b.up.railway.app";
 
 export default function Dashboard({ onLogout, onGoEditor }) {
   const { user } = useAuth();
