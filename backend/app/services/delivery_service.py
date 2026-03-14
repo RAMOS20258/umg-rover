@@ -1,10 +1,10 @@
+import os
 import re
 import smtplib
 import threading
 from email.message import EmailMessage
 from pathlib import Path
 
-import pywhatkit as kit
 from pydantic import BaseModel
 
 from app.core.config import (
@@ -67,6 +67,9 @@ Tu credencial de UMG Rover ya está disponible.
 
 Se adjunta el archivo PDF en este correo.
 
+También puedes descargarla aquí:
+{download_url}
+
 Saludos,
 UMG Rover 2.0
 """
@@ -100,7 +103,7 @@ UMG Rover 2.0
 
 
 # =========================
-# WHATSAPP CON PYWHATKIT
+# WHATSAPP
 # =========================
 def normalize_phone(phone: str) -> str:
     if not phone:
@@ -126,6 +129,8 @@ def build_whatsapp_message(nickname: str, user_id: str) -> str:
 
 
 def _send_pywhatkit_message(phone: str, message: str) -> None:
+    import pywhatkit as kit
+
     kit.sendwhatmsg_instantly(
         phone_no=phone,
         message=message,
@@ -138,6 +143,10 @@ def _send_pywhatkit_message(phone: str, message: str) -> None:
 def send_whatsapp_with_link(phone: str, nickname: str, user_id: str) -> str:
     normalized_phone = normalize_phone(phone)
     message = build_whatsapp_message(nickname, user_id)
+
+    # Si está en Railway, no usar PyWhatKit
+    if os.getenv("RAILWAY_PROJECT_ID") or os.getenv("RAILWAY_ENVIRONMENT"):
+        return "no disponible en Railway: PyWhatKit requiere entorno gráfico"
 
     try:
         thread = threading.Thread(
