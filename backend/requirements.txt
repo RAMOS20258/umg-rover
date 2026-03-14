@@ -1,7 +1,6 @@
 fastapi==0.111.0
 uvicorn[standard]==0.30.0
 pydantic[email]==2.7.1
-pyodbc==5.1.0
 bcrypt==4.1.3
 PyJWT==2.8.0
 python-multipart==0.0.9
@@ -15,3 +14,4 @@ opencv-python-headless==4.10.0.84
 numpy==2.1.1
 requests
 pydantic-settings
+pymysql
