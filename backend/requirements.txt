@@ -15,4 +15,3 @@ numpy==2.1.1
 requests
 pydantic-settings
 pymysql==1.1.1
-pywhatkit==5.4
