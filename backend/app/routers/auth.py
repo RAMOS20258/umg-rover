@@ -167,24 +167,32 @@ async def register(user: UserRegister, db=Depends(get_db)):
     }
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 async def login(data: UserLogin, db=Depends(get_db)):
-    cursor = db.cursor()
-    cursor.execute(
-        """
-        SELECT id, email, nickname, password_hash, avatar_base64, role
-        FROM conductores
-        WHERE nickname = %s
-        """,
-        (data.nickname,),
-    )
-    row = cursor.fetchone()
+    try:
+        cursor = db.cursor()
+        cursor.execute(
+            """
+            SELECT id, email, nickname, password_hash, avatar_base64, role
+            FROM conductores
+            WHERE nickname = %s
+            """,
+            (data.nickname,),
+        )
+        row = cursor.fetchone()
 
-    if not row or not verify_password(data.password, row[3]):
-        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        if not row:
+            raise HTTPException(status_code=401, detail="Usuario no encontrado")
 
-    return _build_login_response(row, db)
+        if not verify_password(data.password, row[3]):
+            raise HTTPException(status_code=401, detail="Credenciales incorrectas")
 
+        return _build_login_response(row, db)
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Error interno login: {exc}")
 
 @router.post("/login-face", response_model=Token)
 async def login_face(data: FaceLoginRequest, db=Depends(get_db)):
