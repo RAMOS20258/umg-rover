@@ -43,8 +43,13 @@ export default function Login({ onRegister }) {
         localStorage.setItem("umg_token", data.access_token);
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user_id", data.user.id);
+        localStorage.setItem("user_role", data.user.role || "");
+        localStorage.setItem("user_data", JSON.stringify(data.user));
 
         login(data.user);
+
+
       } catch (err) {
         setError(err.message || "No se pudo iniciar sesión");
       } finally {
