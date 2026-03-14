@@ -8,7 +8,7 @@ import TokenTable from "../components/TokenTable";
 import "../styles/editor.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
 
-const API = "http://localhost:8000";
+const API = "https://backend-production-793b.up.railway.app";
 
 const COREOGRAFIAS = [
   {

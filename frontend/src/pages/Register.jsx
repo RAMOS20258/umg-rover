@@ -3,7 +3,9 @@ import WebcamCapture from "../components/WebcamCapture";
 import AvatarPresetPicker from "../components/AvatarPresetPicker";
 import "../styles/auth.css";
 
-const API = "http://localhost:8000";
+const API = "https://backend-production-793b.up.railway.app";
+
+
 
 export default function Register({ onLogin }) {
   const [form, setForm] = useState({

@@ -5,7 +5,8 @@ import QRLoginScanner from "../components/QRLoginScanner";
 import "../styles/auth.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
 
-const API = "http://localhost:8000";
+const API = "https://backend-production-793b.up.railway.app";
+
 
 export default function Login({ onRegister }) {
   const { login } = useAuth();
