@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap');
+
+:root {
+  /* Color palette - dark space theme */
+  --bg-deep:      #020b18;
+  --bg-panel:     #060f1f;
+  --bg-card:      #0a1628;
+  --bg-card2:     #0d1f36;
+  --border:       #1a3a5c;
+  --border-glow:  #00d4ff;
+  --accent-cyan:  #00d4ff;
+  --accent-green: #00ff9d;
+  --accent-orange:#ff6b00;
+  --accent-red:   #ff2d55;
+  --accent-purple:#b44fff;
+  --text-primary: #e2f0ff;
+  --text-secondary:#7ba3c8;
+  --text-dim:     #3a5a7a;
+  --reserved:     #569cd6;     /* blue - reserved words */
+  --command:      #9cdcfe;     /* light blue - commands */
+  --paren-color:  #00c853;     /* green - parentheses */
+  --number-color: #f44747;     /* red - numbers */
+
+  --font-display: 'Orbitron', monospace;
+  --font-mono:    'Share Tech Mono', monospace;
+  --font-body:    'Exo 2', sans-serif;
+
+  --glow-cyan: 0 0 10px rgba(0,212,255,0.4), 0 0 30px rgba(0,212,255,0.15);
+  --glow-green: 0 0 10px rgba(0,255,157,0.4);
+  --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.app-root {
+  height: 100vh;
+  width: 100vw;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(0,80,140,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(80,0,140,0.1) 0%, transparent 50%),
+    var(--bg-deep);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+/* ── Buttons ── */
+.btn {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  position: relative;
+}
+.btn:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+  background: rgba(0,212,255,0.05);
+}
+.btn-primary {
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,100,180,0.2));
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(0,100,180,0.35));
+  box-shadow: var(--glow-cyan);
+}
+.btn-success {
+  background: linear-gradient(135deg, rgba(0,255,157,0.1), rgba(0,180,100,0.15));
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+.btn-success:hover { box-shadow: var(--glow-green); }
+.btn-danger {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+.btn-sm { padding: 5px 12px; font-size: 10px; }
+.btn-icon {
+  width: 32px; height: 32px;
+  padding: 0;
+  clip-path: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+/* ── Form inputs ── */
+.input {
+  background: rgba(0,20,40,0.7);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 9px 12px;
+  width: 100%;
+  outline: none;
+  transition: var(--transition);
+}
+.input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 1px rgba(0,212,255,0.2);
+  background: rgba(0,30,60,0.8);
+}
+.input::placeholder { color: var(--text-dim); }
+
+/* ── Panel / Card ── */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+  opacity: 0.5;
+}
+
+/* ── Label ── */
+.label {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* ── Corner decoration ── */
+.corner-tl::after, .corner-br::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: var(--accent-cyan);
+  border-style: solid;
+}
+.corner-tl::after {
+  top: -1px; left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.corner-br::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* ── Animated scan line ── */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  50%  { opacity: 0.3; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+.scanline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+  animation: scanline 6s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Status indicators ── */
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.active {
+  background: var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Console text ── */
+.console-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.console-success { color: var(--accent-green); }
+.console-error   { color: var(--accent-red); }
+.console-warn    { color: var(--accent-orange); }
+.console-info    { color: var(--accent-cyan); }
+
+/* ── Syntax highlighting ── */
+.tok-reserved { color: var(--reserved); font-weight: bold; }
+.tok-command  { color: var(--command); }
+.tok-paren    { color: var(--paren-color); }
+.tok-number   { color: var(--number-color); }
+.tok-default  { color: var(--text-primary); }
+
+/* ── Glow text ── */
+.glow-text {
+  text-shadow: 0 0 10px currentColor, 0 0 30px currentColor;
+}
+
+/* ── Separator ── */
+.sep {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 8px 0;
+}

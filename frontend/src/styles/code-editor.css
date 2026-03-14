@@ -1,0 +1,109 @@
+/* ─── code-editor.css ───────────────────────────────── */
+.code-editor-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #030d1c;
+}
+
+.line-numbers {
+  position: absolute;
+  top: 0; left: 0;
+  width: 44px;
+  background: #02080f;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  padding-top: 10px;
+  user-select: none;
+  z-index: 2;
+  height: calc(100% - 24px);
+}
+.line-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  text-align: right;
+  padding-right: 8px;
+  height: 19.2px;
+}
+
+.editor-area {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  margin-left: 44px;
+}
+
+.highlight-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  pointer-events: none;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre;
+  color: var(--text-primary);
+  overflow: hidden;
+  z-index: 1;
+}
+.hl-line { min-height: 19.2px; }
+
+.code-textarea {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 10px 12px;
+  white-space: pre;
+  overflow: auto;
+}
+
+.autocomplete-hint {
+  position: absolute;
+  bottom: 28px; right: 12px;
+  background: var(--bg-card2);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  z-index: 10;
+  opacity: 0.85;
+}
+
+/* Status bar */
+.editor-statusbar {
+  height: 24px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.editor-statusbar .tok-reserved,
+.editor-statusbar .tok-command,
+.editor-statusbar .tok-paren,
+.editor-statusbar .tok-number { margin-left: 4px; }
+
+/* Comment color */
+.tok-comment { color: #5a6a7a; font-style: italic; }
