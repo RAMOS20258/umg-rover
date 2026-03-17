@@ -1,14 +1,13 @@
 import { useCallback, useState } from "react";
+import { authService } from "../services/authService";
 import WebcamCapture from "../components/WebcamCapture";
 import AvatarPresetPicker from "../components/AvatarPresetPicker";
 import "../styles/auth.css";
 
-const API = "https://backend-production-793b.up.railway.app";
-
-
-
 export default function Register({ onLogin }) {
   const [form, setForm] = useState({
+    nombres: "",
+    apellidos: "",
     email: "",
     email_confirm: "",
     phone: "",
@@ -51,26 +50,17 @@ export default function Register({ onLogin }) {
   }, []);
 
   const validateForm = () => {
-    if (form.email !== form.email_confirm) {
-      return "Los correos no coinciden.";
-    }
-
-    if (form.phone !== form.phone_confirm) {
-      return "Los teléfonos no coinciden.";
-    }
-
-    if (form.password !== form.password_confirm) {
-      return "Las contraseñas no coinciden.";
-    }
-
-    if (!form.avatar_base64) {
-      return "Debes seleccionar un avatar.";
-    }
-
+    if (!form.nombres.trim()) return "Debes ingresar tus nombres.";
+    if (!form.apellidos.trim()) return "Debes ingresar tus apellidos.";
+    if (form.email !== form.email_confirm) return "Los correos no coinciden.";
+    if (form.phone !== form.phone_confirm) return "Los teléfonos no coinciden.";
+    if (form.password !== form.password_confirm) return "Las contraseñas no coinciden.";
+    if (form.password.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
+    if (!form.nickname.trim()) return "Debes ingresar un nickname.";
+    if (!form.avatar_base64) return "Debes seleccionar un avatar.";
     if (!form.face_base64) {
       return "Debes capturar una selfie para registrar el reconocimiento facial.";
     }
-
     return "";
   };
 
@@ -81,7 +71,6 @@ export default function Register({ onLogin }) {
     setSuccess("");
 
     const validationError = validateForm();
-
     if (validationError) {
       setLoading(false);
       setError(validationError);
@@ -89,17 +78,18 @@ export default function Register({ onLogin }) {
     }
 
     try {
-      const res = await fetch(`${API}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const payload = {
+        ...form,
+        nombres: form.nombres.trim(),
+        apellidos: form.apellidos.trim(),
+        email: form.email.trim(),
+        email_confirm: form.email_confirm.trim(),
+        phone: form.phone.trim(),
+        phone_confirm: form.phone_confirm.trim(),
+        nickname: form.nickname.trim(),
+      };
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Error en el registro");
-      }
+      const data = await authService.register(payload);
 
       const delivery = data.delivery || {};
       setSuccess(
@@ -135,12 +125,41 @@ export default function Register({ onLogin }) {
           <div className="auth-line" />
         </div>
 
-        <form className="auth-form panel corner-tl corner-br register-form" onSubmit={handleSubmit}>
+        <form
+          className="auth-form panel corner-tl corner-br register-form"
+          onSubmit={handleSubmit}
+        >
           <div className="auth-form-header">
             <span className="status-dot active" />
             <span className="label" style={{ margin: 0 }}>
               DATOS DE REGISTRO
             </span>
+          </div>
+
+          <div className="register-section">IDENTIDAD PERSONAL</div>
+
+          <div className="auth-field">
+            <label className="label">NOMBRES</label>
+            <input
+              className="input"
+              type="text"
+              autoComplete="given-name"
+              placeholder="Ej: Nicolle María"
+              required
+              {...f("nombres")}
+            />
+          </div>
+
+          <div className="auth-field">
+            <label className="label">APELLIDOS</label>
+            <input
+              className="input"
+              type="text"
+              autoComplete="family-name"
+              placeholder="Ej: Revolorio López"
+              required
+              {...f("apellidos")}
+            />
           </div>
 
           <div className="register-section">AVATAR</div>
@@ -172,6 +191,7 @@ export default function Register({ onLogin }) {
           />
 
           <div className="register-section">CORREO ELECTRÓNICO</div>
+
           <div className="auth-field">
             <label className="label">CORREO</label>
             <input
@@ -197,13 +217,14 @@ export default function Register({ onLogin }) {
           </div>
 
           <div className="register-section">TELÉFONO / WHATSAPP</div>
+
           <div className="auth-field">
             <label className="label">TELÉFONO (+502...)</label>
             <input
               className="input"
               type="tel"
               autoComplete="tel"
-              placeholder="+502 0000 0000"
+              placeholder="+50212345678"
               required
               {...f("phone")}
             />
@@ -215,13 +236,14 @@ export default function Register({ onLogin }) {
               className="input"
               type="tel"
               autoComplete="tel"
-              placeholder="confirmar teléfono"
+              placeholder="+50212345678"
               required
               {...f("phone_confirm")}
             />
           </div>
 
           <div className="register-section">CÓDIGO DE ACCESO</div>
+
           <div className="auth-field">
             <label className="label">PASSWORD</label>
             <input
@@ -246,7 +268,8 @@ export default function Register({ onLogin }) {
             />
           </div>
 
-          <div className="register-section">IDENTIDAD</div>
+          <div className="register-section">IDENTIDAD DEL SISTEMA</div>
+
           <div className="auth-field">
             <label className="label">NICKNAME DE PILOTO</label>
             <input
@@ -267,11 +290,19 @@ export default function Register({ onLogin }) {
 
           {success && <div className="auth-ok">✓ {success}</div>}
 
-          <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
+          <button
+            className="btn btn-primary auth-submit"
+            type="submit"
+            disabled={loading}
+          >
             {loading ? "PROCESANDO..." : "🚀 UNIRSE A LA MISIÓN"}
           </button>
 
-          <button type="button" className="btn auth-register-btn" onClick={onLogin}>
+          <button
+            type="button"
+            className="btn auth-register-btn"
+            onClick={onLogin}
+          >
             ← VOLVER AL ACCESO
           </button>
         </form>

@@ -1,12 +1,10 @@
 import { useState, useCallback } from "react";
 import { useAuth } from "../App";
+import { authService } from "../services/authService";
 import WebcamCapture from "../components/WebcamCapture";
 import QRLoginScanner from "../components/QRLoginScanner";
 import "../styles/auth.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
-
-const API = "https://backend-production-793b.up.railway.app";
-
 
 export default function Login({ onRegister }) {
   const { login } = useAuth();
@@ -19,37 +17,24 @@ export default function Login({ onRegister }) {
   const [loading, setLoading] = useState(false);
 
   const doLogin = useCallback(
-    async (endpoint, payload = null, method = "POST") => {
+    async (mode, payload = null) => {
       setLoading(true);
       setError("");
 
       try {
-        const options = {
-          method,
-          headers: { "Content-Type": "application/json" },
-        };
+        let data;
 
-        if (method !== "GET" && payload) {
-          options.body = JSON.stringify(payload);
+        if (mode === "password") {
+          data = await authService.login(payload);
+        } else if (mode === "face") {
+          data = await authService.loginFace(payload);
+        } else if (mode === "qr") {
+          data = await authService.loginQr(payload);
+        } else {
+          throw new Error("Modo de acceso no válido");
         }
-
-        const res = await fetch(`${API}${endpoint}`, options);
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.detail || "Error al iniciar sesión");
-        }
-
-        localStorage.setItem("umg_token", data.access_token);
-        localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("user_id", data.user.id);
-        localStorage.setItem("user_role", data.user.role || "");
-        localStorage.setItem("user_data", JSON.stringify(data.user));
 
         login(data.user);
-
-
       } catch (err) {
         setError(err.message || "No se pudo iniciar sesión");
       } finally {
@@ -62,7 +47,7 @@ export default function Login({ onRegister }) {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      await doLogin("/auth/login", form, "POST");
+      await doLogin("password", form);
     },
     [doLogin, form]
   );
@@ -81,7 +66,7 @@ export default function Login({ onRegister }) {
         return;
       }
 
-      await doLogin("/auth/login-face", faceForm, "POST");
+      await doLogin("face", faceForm);
     },
     [doLogin, faceForm]
   );
@@ -93,7 +78,7 @@ export default function Login({ onRegister }) {
         return;
       }
 
-      await doLogin(`/auth/login-qr/${token}`, null, "GET");
+      await doLogin("qr", token);
     },
     [doLogin]
   );
@@ -128,13 +113,10 @@ export default function Login({ onRegister }) {
 
       <div className={`auth-container ${tab !== "password" ? "auth-container-wide" : ""}`}>
         <div className="auth-header">
-
-          {/* LOGO UMG */}
           <div className="auth-umg-logo">
             <img src={logoUMG} alt="UMG Logo" />
           </div>
 
-          {/* Rover icon original */}
           <div className="auth-logo">
             <div className="rover-icon">
               <div className="rover-body" />
@@ -177,7 +159,6 @@ export default function Login({ onRegister }) {
           </button>
         </div>
 
-        {/* LOGIN NORMAL */}
         {tab === "password" ? (
           <form className="auth-form panel corner-tl corner-br" onSubmit={handleSubmit}>
             <div className="auth-form-header">

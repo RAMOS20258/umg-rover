@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import admin, auth, compiler, credentials
+from app.routers import evidences
 
 app = FastAPI(title="UMG Basic Rover 2.0 API", version="1.2.0")
 
