@@ -74,7 +74,10 @@ export default function App() {
         )}
 
         {user && page === "dashboard" && (
-          <Dashboard onLogout={logout} onGoEditor={() => setPage("editor")} />
+          <Dashboard
+            onLogout={logout}
+            onGoEditor={() => setPage("editor")}
+          />
         )}
 
         {user && page === "editor" && (
@@ -90,7 +93,10 @@ export default function App() {
         )}
 
         {user && page === "profile" && (
-          <Profile onLogout={logout} onBack={() => setPage("editor")} />
+          <Profile
+            onLogout={logout}
+            onBack={() => setPage("editor")}
+          />
         )}
       </div>
     </AuthContext.Provider>
