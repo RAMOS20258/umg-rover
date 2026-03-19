@@ -4,11 +4,11 @@ import logoUMG from "../../assets/avatar-presets/umg/LOGOUMG.png";
 
 import { useAdminDashboard } from "../../hooks/useAdminDashboard";
 import AdminStatsCards from "../../components/admin/AdminStatsCards";
-import AdminAccesos from "./AdminAccesos";
-import AdminConductores from "./AdminConductores";
-import AdminEvidencias from "./AdminEvidencias";
-import AdminErrores from "./AdminErrores";
-import AdminCredenciales from "./AdminCredenciales";
+import AccessLogsTable from "../../components/admin/AccessLogsTable";
+import ConductoresTable from "../../components/admin/ConductoresTable";
+import EvidenciasTable from "../../components/admin/EvidenciasTable";
+import CompilerErrorsTable from "../../components/admin/CompilerErrorsTable";
+import CredentialsTable from "../../components/admin/CredentialsTable";
 
 export default function AdminDashboard({ onLogout, onGoEditor }) {
   const { user } = useAuth();
@@ -38,17 +38,17 @@ export default function AdminDashboard({ onLogout, onGoEditor }) {
 
     switch (tab) {
       case "accesos":
-        return <AdminAccesos accesos={accesos} />;
+        return <AccessLogsTable accesos={accesos} />;
       case "conductores":
-        return <AdminConductores conductores={conductores} />;
+        return <ConductoresTable conductores={conductores} />;
       case "evidencias":
-        return <AdminEvidencias evidencias={evidencias} />;
+        return <EvidenciasTable evidencias={evidencias} />;
       case "errores":
-        return <AdminErrores errores={errores} />;
+        return <CompilerErrorsTable errores={errores} />;
       case "credenciales":
-        return <AdminCredenciales credenciales={credenciales} />;
+        return <CredentialsTable credenciales={credenciales} />;
       default:
-        return <AdminAccesos accesos={accesos} />;
+        return <AccessLogsTable accesos={accesos} />;
     }
   };
 
@@ -60,8 +60,7 @@ export default function AdminDashboard({ onLogout, onGoEditor }) {
         <div className="dash-brand">
           <img src={logoUMG} alt="Logo UMG" className="brand-logo" />
           <span className="brand-name">
-            UMG ROVER — {user?.role === "supervisor" ? "SUPERVISOR" : "ADMIN"}{" "}
-            DASHBOARD
+            UMG ROVER — {user?.role === "supervisor" ? "SUPERVISOR" : "ADMIN"} DASHBOARD
           </span>
         </div>
 
@@ -80,10 +79,7 @@ export default function AdminDashboard({ onLogout, onGoEditor }) {
       <div className="dash-body">
         <AdminStatsCards stats={stats} />
 
-        <div
-          className="tab-bar"
-          style={{ marginBottom: 0, flexWrap: "wrap", gap: 8 }}
-        >
+        <div className="tab-bar" style={{ marginBottom: 0, flexWrap: "wrap", gap: 8 }}>
           <button
             className={`tab ${tab === "accesos" ? "active" : ""}`}
             onClick={() => setTab("accesos")}
