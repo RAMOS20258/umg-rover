@@ -937,3 +937,83 @@ JOIN modulos m ON m.nombre = 'evidencias'
 JOIN permisos p
 WHERE r.nombre = 'conductor'
   AND p.nombre IN ('crear', 'ver', 'editar', 'eliminar');
+
+
+  USE railway;
+
+CREATE TABLE IF NOT EXISTS errores_compilador (
+    id                  CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    programa_id         CHAR(36) NOT NULL,
+    conductor_id        CHAR(36) NOT NULL,
+    simulacion_id       CHAR(36) NULL,
+    ejecucion_id        CHAR(36) NULL,
+    linea               INT NULL,
+    columna_error       INT NULL,
+    tipo_error          VARCHAR(50) NOT NULL,
+    codigo_error        VARCHAR(50) NULL,
+    mensaje_error       VARCHAR(500) NOT NULL,
+    fragmento_codigo    LONGTEXT NULL,
+    severidad           VARCHAR(20) NOT NULL DEFAULT 'MEDIA',
+    fecha_error         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS credenciales_pdf (
+    id                  CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    conductor_id        CHAR(36) NOT NULL,
+    codigo_credencial   VARCHAR(50) NOT NULL UNIQUE,
+    nombre_archivo      VARCHAR(255) NOT NULL,
+    ruta_archivo        VARCHAR(500) NULL,
+    pdf_base64          LONGTEXT NULL,
+    hash_documento      VARCHAR(255) NULL,
+    fecha_generacion    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_vencimiento   DATETIME NULL,
+    estado              VARCHAR(20) NOT NULL DEFAULT 'GENERADA',
+    enviado_email       TINYINT(1) NOT NULL DEFAULT 0,
+    enviado_whatsapp    TINYINT(1) NOT NULL DEFAULT 0,
+    observaciones       VARCHAR(300) NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS evidencias_conductor (
+    id                  CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    conductor_id        CHAR(36) NOT NULL,
+    tipo_evidencia      VARCHAR(30) NOT NULL,
+    nombre_archivo      VARCHAR(255) NOT NULL,
+    ruta_archivo        VARCHAR(500) NULL,
+    archivo_base64      LONGTEXT NULL,
+    descripcion         VARCHAR(300) NULL,
+    fecha_captura       DATETIME NULL,
+    fecha_subida        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    es_principal        TINYINT(1) NOT NULL DEFAULT 0,
+    estado              VARCHAR(20) NOT NULL DEFAULT 'ACTIVA'
+) ENGINE=InnoDB;
+
+ALTER TABLE errores_compilador
+ADD CONSTRAINT fk_errores_programa
+FOREIGN KEY (programa_id) REFERENCES programas(id)
+ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE errores_compilador
+ADD CONSTRAINT fk_errores_conductor
+FOREIGN KEY (conductor_id) REFERENCES conductores(id)
+ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE credenciales_pdf
+ADD CONSTRAINT fk_credenciales_conductor
+FOREIGN KEY (conductor_id) REFERENCES conductores(id)
+ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE evidencias_conductor
+ADD CONSTRAINT fk_evidencias_conductor
+FOREIGN KEY (conductor_id) REFERENCES conductores(id)
+ON UPDATE CASCADE ON DELETE RESTRICT;
+
+CREATE INDEX ix_errores_programa   ON errores_compilador(programa_id);
+CREATE INDEX ix_errores_conductor  ON errores_compilador(conductor_id);
+CREATE INDEX ix_errores_tipo       ON errores_compilador(tipo_error);
+CREATE INDEX ix_errores_fecha      ON errores_compilador(fecha_error);
+
+CREATE INDEX ix_credenciales_conductor ON credenciales_pdf(conductor_id);
+CREATE INDEX ix_credenciales_estado    ON credenciales_pdf(estado);
+
+CREATE INDEX ix_evidencias_conductor ON evidencias_conductor(conductor_id);
+CREATE INDEX ix_evidencias_tipo      ON evidencias_conductor(tipo_evidencia);
