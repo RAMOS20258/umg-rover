@@ -232,7 +232,7 @@ async def compile_code(
                 accion="INSERT",
                 datos_nuevos={
                     "id": programa_id,
-                    "nombre": req.program_name,
+                    "nombre": req.program_name or "programa",
                     "estado": "COMPILADO",
                     "rover_id": req.rover_id,
                 },
@@ -270,7 +270,6 @@ async def compile_code(
                     estado="ERROR",
                 )
 
-            if programa_id:
                 simulacion_id = _create_simulation(
                     db=db,
                     programa_id=programa_id,
@@ -307,6 +306,7 @@ async def compile_code(
                 )
 
                 db.commit()
+
         except Exception:
             db.rollback()
 
@@ -351,7 +351,7 @@ async def save_program(
             accion="INSERT",
             datos_nuevos={
                 "id": programa_id,
-                "nombre": req.program_name,
+                "nombre": req.program_name or "programa",
                 "estado": "BORRADOR",
                 "rover_id": req.rover_id,
             },
@@ -399,6 +399,7 @@ async def get_programs(current_user=Depends(get_current_user), db=Depends(get_db
             "nombre": r[1],
             "descripcion": r[2],
             "codigo": r[3],
+            "codigo_actual": r[3],
             "estado": r[4],
             "version_actual": r[5],
             "rover_id": r[6],
@@ -410,7 +411,11 @@ async def get_programs(current_user=Depends(get_current_user), db=Depends(get_db
 
 
 @router.get("/programs/{program_id}/versions")
-async def get_program_versions(program_id: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def get_program_versions(
+    program_id: str,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
     ensure_module_permission(db, current_user, "programas", "ver")
 
     cursor = db.cursor()
@@ -459,7 +464,11 @@ async def get_program_versions(program_id: str, current_user=Depends(get_current
 
 
 @router.get("/programs/{program_id}/errors")
-async def get_program_errors(program_id: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def get_program_errors(
+    program_id: str,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
     ensure_module_permission(db, current_user, "programas", "ver")
 
     cursor = db.cursor()
@@ -512,7 +521,11 @@ async def get_program_errors(program_id: str, current_user=Depends(get_current_u
 
 
 @router.get("/programs/{program_id}/simulations")
-async def get_program_simulations(program_id: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def get_program_simulations(
+    program_id: str,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
     ensure_module_permission(db, current_user, "simulador", "ver")
 
     cursor = db.cursor()

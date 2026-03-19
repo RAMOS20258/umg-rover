@@ -159,7 +159,7 @@ def _ensure_access(current_user: dict | None, target_user_id: str):
         return True
     if current_user.get("sub") == target_user_id:
         return True
-    if current_user.get("role") == "admin":
+    if current_user.get("role") in ["admin", "supervisor"]:
         return True
 
     raise HTTPException(
@@ -172,18 +172,23 @@ def _ensure_access(current_user: dict | None, target_user_id: str):
 def download_credential(
     user_id: str,
     request: Request,
+    current_user=Depends(get_current_user),
     db=Depends(get_db),
 ):
+    ensure_module_permission(db, current_user, "credenciales", "ver")
+
     row = _get_user_row(user_id, db)
     if not row:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    _ensure_access(current_user, user_id)
 
     user_id_db, email, nickname, phone, avatar_base64, qr_login_token = row
     ip_address, user_agent = _get_client_meta(request)
 
     latest_credential = _get_latest_credential(db, user_id_db)
 
-    if latest_credential and latest_credential[3]:
+    if latest_credential and latest_credential[2]:
         pdf_path = CREDENTIALS_DIR / latest_credential[2]
     else:
         pdf_path = CREDENTIALS_DIR / f"credencial_{user_id_db}.pdf"
@@ -202,15 +207,17 @@ def download_credential(
             if latest_credential:
                 _update_credential_file_info(db, latest_credential[0], pdf_path)
                 credential_id = latest_credential[0]
+                action = "UPDATE"
             else:
                 credential_id = _insert_credential_record(db, user_id_db, pdf_path)
+                action = "INSERT"
 
             log_audit(
                 db=db,
-                conductor_id=user_id_db,
+                conductor_id=current_user["sub"],
                 tabla_afectada="credenciales_pdf",
                 registro_id=credential_id,
-                accion="INSERT" if not latest_credential else "UPDATE",
+                accion=action,
                 datos_nuevos={
                     "conductor_id": user_id_db,
                     "archivo": pdf_path.name,
@@ -249,13 +256,14 @@ def reenviar_credencial(
     if not row:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
+    _ensure_access(current_user, user_id)
+
     user_id_db, email, nickname, phone, avatar_base64, qr_login_token = row
-    _ensure_access(current_user, user_id_db)
     ip_address, user_agent = _get_client_meta(request)
 
     latest_credential = _get_latest_credential(db, user_id_db)
 
-    if latest_credential and latest_credential[3]:
+    if latest_credential and latest_credential[2]:
         pdf_path = CREDENTIALS_DIR / latest_credential[2]
         credential_id = latest_credential[0]
     else:

@@ -1,10 +1,10 @@
 import os
 import re
 import smtplib
-import threading
 from email.message import EmailMessage
 from pathlib import Path
 
+import requests
 from pydantic import BaseModel
 
 from app.core.config import (
@@ -18,6 +18,12 @@ from app.core.config import (
     MAIL_STARTTLS,
     MAIL_SSL_TLS,
 )
+
+
+# =========================
+# CONFIG WHATSAPP NODE
+# =========================
+WHATSAPP_NODE_SERVICE_URL = os.getenv("WHATSAPP_NODE_SERVICE_URL", "").rstrip("/")
 
 
 # =========================
@@ -128,33 +134,47 @@ def build_whatsapp_message(nickname: str, user_id: str) -> str:
     )
 
 
-def _send_pywhatkit_message(phone: str, message: str) -> None:
-    import pywhatkit as kit
+def _send_whatsapp_via_node_service(phone: str, message: str) -> str:
+    if not WHATSAPP_NODE_SERVICE_URL:
+        raise RuntimeError(
+            "Falta la variable WHATSAPP_NODE_SERVICE_URL en Railway o en tu entorno local"
+        )
 
-    kit.sendwhatmsg_instantly(
-        phone_no=phone,
-        message=message,
-        wait_time=20,
-        tab_close=True,
-        close_time=3,
-    )
+    payload = {
+        "phone": phone,
+        "message": message,
+    }
+
+    try:
+        response = requests.post(
+            f"{WHATSAPP_NODE_SERVICE_URL}/send-text",
+            json=payload,
+            timeout=60,
+        )
+    except Exception as exc:
+        raise RuntimeError(f"No se pudo conectar con el servicio Node de WhatsApp: {exc}") from exc
+
+    try:
+        data = response.json()
+    except Exception:
+        data = {"message": response.text}
+
+    if response.status_code >= 300:
+        raise RuntimeError(
+            f"Servicio Node WhatsApp respondió con error {response.status_code}: {data.get('message', response.text)}"
+        )
+
+    if not data.get("ok", False):
+        raise RuntimeError(data.get("message", "Error desconocido enviando WhatsApp"))
+
+    return "enviado"
 
 
 def send_whatsapp_with_link(phone: str, nickname: str, user_id: str) -> str:
     normalized_phone = normalize_phone(phone)
     message = build_whatsapp_message(nickname, user_id)
 
-    # Si está en Railway, no usar PyWhatKit
-    if os.getenv("RAILWAY_PROJECT_ID") or os.getenv("RAILWAY_ENVIRONMENT"):
-        return "no disponible en Railway: PyWhatKit requiere entorno gráfico"
-
-    try:
-        thread = threading.Thread(
-            target=_send_pywhatkit_message,
-            args=(normalized_phone, message),
-            daemon=True,
-        )
-        thread.start()
-        return "en proceso por PyWhatKit"
-    except Exception as exc:
-        raise RuntimeError(f"Error enviando por PyWhatKit: {exc}") from exc
+    return _send_whatsapp_via_node_service(
+        phone=normalized_phone,
+        message=message,
+    )

@@ -39,10 +39,16 @@ def _get_client_meta(request: Request):
 
 def _get_role_id(db, role_name: str) -> int:
     cursor = db.cursor()
-    cursor.execute("SELECT id FROM roles WHERE nombre = %s LIMIT 1", (role_name,))
+    cursor.execute(
+        "SELECT id FROM roles WHERE nombre = %s LIMIT 1",
+        (role_name,),
+    )
     row = cursor.fetchone()
     if not row:
-        raise HTTPException(status_code=500, detail=f"No existe el rol '{role_name}' en la base de datos")
+        raise HTTPException(
+            status_code=500,
+            detail=f"No existe el rol '{role_name}' en la base de datos",
+        )
     return row[0]
 
 
@@ -71,7 +77,7 @@ def _get_user_by_nickname(db, nickname: str):
 def _get_user_by_qr_token(db, token: str):
     cursor = db.cursor()
 
-    # 1) Intentar por tabla tokens_qr
+    # Buscar en tabla tokens_qr (QR reutilizable, no validar "usado")
     cursor.execute(
         """
         SELECT
@@ -86,7 +92,6 @@ def _get_user_by_qr_token(db, token: str):
         INNER JOIN conductores c ON c.id = tq.conductor_id
         INNER JOIN roles r ON r.id = c.rol_id
         WHERE tq.token = %s
-          AND tq.usado = 0
           AND tq.expires_at >= NOW()
           AND c.is_active = 1
         LIMIT 1
@@ -97,7 +102,7 @@ def _get_user_by_qr_token(db, token: str):
     if row:
         return ("tokens_qr", row)
 
-    # 2) Compatibilidad con el campo viejo en conductores
+    # Compatibilidad con campo antiguo en conductores
     cursor.execute(
         """
         SELECT
@@ -123,7 +128,13 @@ def _get_user_by_qr_token(db, token: str):
     return None
 
 
-def _insert_login_log(db, user_id: str, metodo: str, ip_address: str | None, user_agent: str | None):
+def _insert_login_log(
+    db,
+    user_id: str,
+    metodo: str,
+    ip_address: str | None,
+    user_agent: str | None,
+):
     cursor = db.cursor()
     cursor.execute(
         """
@@ -238,7 +249,7 @@ def _save_biometry_and_evidence(db, user_id: str, face_base64: str | None):
 def _save_qr_token(db, user_id: str, token: str):
     cursor = db.cursor()
 
-    # Compatibilidad con login QR viejo
+    # Compatibilidad con campo viejo
     cursor.execute(
         """
         UPDATE conductores
@@ -249,7 +260,7 @@ def _save_qr_token(db, user_id: str, token: str):
         (token, user_id),
     )
 
-    # Nuevo registro en tokens_qr
+    # QR reutilizable con expiración larga
     cursor.execute(
         """
         INSERT INTO tokens_qr (
@@ -266,7 +277,7 @@ def _save_qr_token(db, user_id: str, token: str):
             str(uuid.uuid4()),
             user_id,
             token,
-            datetime.now() + timedelta(days=365),
+            datetime.now() + timedelta(days=3650),
         ),
     )
 
@@ -279,6 +290,7 @@ def _save_credential_record(db, user_id: str, pdf_path):
 
     hash_documento = hashlib.sha256(pdf_bytes).hexdigest()
     codigo_credencial = f"CRED-{user_id.replace('-', '').upper()[:16]}"
+    cred_id = str(uuid.uuid4())
 
     cursor.execute(
         """
@@ -297,7 +309,7 @@ def _save_credential_record(db, user_id: str, pdf_path):
         VALUES (%s, %s, %s, %s, %s, %s, NOW(), 'GENERADA', 0, 0)
         """,
         (
-            str(uuid.uuid4()),
+            cred_id,
             user_id,
             codigo_credencial,
             pdf_path.name,
@@ -306,8 +318,15 @@ def _save_credential_record(db, user_id: str, pdf_path):
         ),
     )
 
+    return cred_id
 
-def _mark_credential_delivery(db, user_id: str, email_sent: bool, whatsapp_sent: bool):
+
+def _mark_credential_delivery(
+    db,
+    credential_id: str,
+    email_sent: bool,
+    whatsapp_sent: bool,
+):
     cursor = db.cursor()
     cursor.execute(
         """
@@ -315,15 +334,13 @@ def _mark_credential_delivery(db, user_id: str, email_sent: bool, whatsapp_sent:
         SET enviado_email = %s,
             enviado_whatsapp = %s,
             estado = %s
-        WHERE conductor_id = %s
-        ORDER BY fecha_generacion DESC
-        LIMIT 1
+        WHERE id = %s
         """,
         (
             1 if email_sent else 0,
             1 if whatsapp_sent else 0,
             "ENVIADA" if (email_sent or whatsapp_sent) else "GENERADA",
-            user_id,
+            credential_id,
         ),
     )
 
@@ -364,7 +381,10 @@ async def register(user: UserRegister, request: Request, db=Depends(get_db)):
         raise HTTPException(status_code=400, detail="Las contraseñas no coinciden")
 
     if len(user.password) < 8:
-        raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 8 caracteres")
+        raise HTTPException(
+            status_code=400,
+            detail="La contraseña debe tener al menos 8 caracteres",
+        )
 
     normalized_phone = normalize_phone(user.phone)
     conductor_role_id = _get_role_id(db, "conductor")
@@ -380,7 +400,10 @@ async def register(user: UserRegister, request: Request, db=Depends(get_db)):
         (user.email, user.nickname),
     )
     if cursor.fetchone():
-        raise HTTPException(status_code=400, detail="El email o nickname ya está registrado")
+        raise HTTPException(
+            status_code=400,
+            detail="El email o nickname ya está registrado",
+        )
 
     user_id = str(uuid.uuid4())
     hashed_pw = hash_password(user.password)
@@ -449,12 +472,19 @@ async def register(user: UserRegister, request: Request, db=Depends(get_db)):
 
     except FaceError as exc:
         db.rollback()
-        raise HTTPException(status_code=400, detail=f"Error en reconocimiento facial: {exc}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error en reconocimiento facial: {exc}",
+        )
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error al registrar usuario: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al registrar usuario: {exc}",
+        )
 
-    # Generar PDF y registrar credencial
+    credential_id = None
+
     try:
         pdf_path = generate_credential_pdf(
             user_id=user_id,
@@ -465,13 +495,15 @@ async def register(user: UserRegister, request: Request, db=Depends(get_db)):
             qr_login_token=qr_token,
         )
 
-        cursor = db.cursor()
-        _save_credential_record(db, user_id, pdf_path)
+        credential_id = _save_credential_record(db, user_id, pdf_path)
         db.commit()
 
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"No se pudo generar la credencial PDF: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"No se pudo generar la credencial PDF: {exc}",
+        )
 
     email_status = "pendiente"
     whatsapp_status = "pendiente"
@@ -500,24 +532,25 @@ async def register(user: UserRegister, request: Request, db=Depends(get_db)):
         whatsapp_status = f"no enviado: {exc}"
 
     try:
-        _mark_credential_delivery(db, user_id, email_sent, whatsapp_sent)
+        if credential_id:
+            _mark_credential_delivery(db, credential_id, email_sent, whatsapp_sent)
 
-        log_audit(
-            db=db,
-            conductor_id=user_id,
-            tabla_afectada="credenciales_pdf",
-            registro_id=user_id,
-            accion="UPDATE",
-            datos_nuevos={
-                "enviado_email": email_sent,
-                "enviado_whatsapp": whatsapp_sent,
-            },
-            ip_address=ip_address,
-            user_agent=user_agent,
-            observaciones="Actualización de envío de credencial",
-        )
+            log_audit(
+                db=db,
+                conductor_id=user_id,
+                tabla_afectada="credenciales_pdf",
+                registro_id=credential_id,
+                accion="UPDATE",
+                datos_nuevos={
+                    "enviado_email": email_sent,
+                    "enviado_whatsapp": whatsapp_sent,
+                },
+                ip_address=ip_address,
+                user_agent=user_agent,
+                observaciones="Actualización de envío de credencial",
+            )
 
-        db.commit()
+            db.commit()
     except Exception:
         db.rollback()
 
@@ -566,12 +599,21 @@ async def login_face(data: FaceLoginRequest, request: Request, db=Depends(get_db
         registered_path = _restore_face_from_db_if_needed(db, user_id)
         result = compare_faces(registered_path, data.face_base64)
     except FaceError as exc:
-        raise HTTPException(status_code=400, detail=f"Reconocimiento facial no válido: {exc}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Reconocimiento facial no válido: {exc}",
+        )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Error interno en login facial: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error interno en login facial: {exc}",
+        )
 
     if not result["accepted"]:
-        raise HTTPException(status_code=401, detail=f"El rostro no coincide. Puntaje: {result['score']}")
+        raise HTTPException(
+            status_code=401,
+            detail=f"El rostro no coincide. Puntaje: {result['score']}",
+        )
 
     return _build_login_response(row, db, "FACE", request)
 
@@ -584,29 +626,17 @@ async def login_qr(token: str, request: Request, db=Depends(get_db)):
         raise HTTPException(status_code=404, detail="QR inválido o expirado")
 
     source, row = result
-    token_qr_id = row[6]
 
-    try:
-        if source == "tokens_qr" and token_qr_id:
-            cursor = db.cursor()
-            cursor.execute(
-                """
-                UPDATE tokens_qr
-                SET usado = 1,
-                    usado_at = NOW()
-                WHERE id = %s
-                """,
-                (token_qr_id,),
-            )
-            db.commit()
-    except Exception:
-        db.rollback()
-
+    # QR reutilizable: no marcar como usado
     return _build_login_response(row, db, "QR", request)
 
 
 @router.post("/logout")
-async def logout(request: Request, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def logout(
+    request: Request,
+    current_user=Depends(get_current_user),
+    db=Depends(get_db),
+):
     cursor = db.cursor()
     log_id = str(uuid.uuid4())
     ip_address, user_agent = _get_client_meta(request)
@@ -660,6 +690,9 @@ async def logout(request: Request, current_user=Depends(get_current_user), db=De
 
     except Exception as exc:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"No se pudo cerrar sesión: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"No se pudo cerrar sesión: {exc}",
+        )
 
     return {"message": "Sesión cerrada"}

@@ -2,6 +2,8 @@ from typing import Optional
 from pydantic import BaseModel
 
 class UserRegister(BaseModel):
+    nombres: str
+    apellidos: str
     email: str
     email_confirm: str
     phone: str
@@ -23,6 +25,9 @@ class FaceLoginRequest(BaseModel):
 class CompileRequest(BaseModel):
     code: str
     program_name: Optional[str] = "programa"
+    descripcion: Optional[str] = None
+    rover_id: Optional[str] = None
+    save_on_success: Optional[bool] = False
 
 class Token(BaseModel):
     access_token: str
