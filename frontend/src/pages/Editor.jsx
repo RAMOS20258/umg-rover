@@ -1,44 +1,80 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../App";
-import WebcamCapture from "../components/WebcamCapture";
-import "../styles/profile.css";
+import CodeEditor from "../components/CodeEditor";
+import Simulator from "../components/Simulator";
+import Console from "../components/Console";
+import Menubar from "../components/Menubar";
+import TokenTable from "../components/TokenTable";
+import { compilerService } from "../services/compilerService";
+import { credentialService } from "../services/credentialService";
+import "../styles/editor.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
 
-const API = "https://backend-production-793b.up.railway.app";
+const COREOGRAFIAS = [
+  {
+    name: "🌌 Danza Galáctica",
+    code: `PROGRAM DanzaGalactica
+BEGIN
+    circulo(50);
+    rotar(2);
+    avanzar_mts(1);
+    girar(1) + avanzar_vlts(3);
+    circulo(100);
+    rotar(-2);
+    avanzar_mts(-1);
+    moonwalk(5);
+    cuadrado(80);
+    rotar(1);
+END.`,
+    song: "Galactic",
+  },
+  {
+    name: "❄️ Exploración Polar",
+    code: `PROGRAM ExploracionPolar
+BEGIN
+    avanzar_mts(2);
+    girar(1) + avanzar_ctms(50);
+    girar(0) + avanzar_mts(1);
+    girar(-1) + avanzar_ctms(80);
+    cuadrado(60);
+    rotar(3);
+    avanzar_vlts(5);
+    circulo(40);
+    caminar(8);
+    moonwalk(3);
+END.`,
+    song: "Polar",
+  },
+  {
+    name: "💃 Tango del Rover",
+    code: `PROGRAM TangoRover
+BEGIN
+    caminar(3);
+    moonwalk(2);
+    girar(-1) + avanzar_mts(1) + girar(0) + girar(1) + avanzar_ctms(40);
+    rotar(1);
+    caminar(-3);
+    moonwalk(-2);
+    circulo(30);
+    cuadrado(50);
+    avanzar_vlts(4);
+    rotar(-1);
+END.`,
+    song: "Tango",
+  },
+];
 
-export default function Profile({ onBack, onLogout, onDashboard, onProfile }) {
+const DEFAULT_CODE = `PROGRAM MiPrimerRover
+BEGIN
+    avanzar_mts(2);
+    girar(1) + avanzar_vlts(3);
+    circulo(50);
+    rotar(1);
+    cuadrado(80);
+END.`;
+
+export default function Editor({ onLogout, onDashboard, onProfile }) {
   const { user } = useAuth();
-
-  const [evidencias, setEvidencias] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [facePreview, setFacePreview] = useState(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const token = useMemo(
-    () =>
-      localStorage.getItem("umg_token") ||
-      localStorage.getItem("token") ||
-      localStorage.getItem("access_token"),
-    [],
-  );
-
-  const buildHeaders = useCallback(
-    (json = false) => {
-      const headers = {};
-      if (token) {
-        headers.Authorization = token.startsWith("Bearer ")
-          ? token
-          : `Bearer ${token}`;
-      }
-      if (json) {
-        headers["Content-Type"] = "application/json";
-      }
-      return headers;
-    },
-    [token],
-  );
 
   const resolveAvatarSrc = (userData) => {
     if (!userData) return null;
@@ -60,273 +96,403 @@ export default function Profile({ onBack, onLogout, onDashboard, onProfile }) {
 
   const avatarSrc = resolveAvatarSrc(user);
 
-  const fetchEvidencias = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  const [code, setCode] = useState(DEFAULT_CODE);
+  const [compileResult, setCompileResult] = useState(null);
+  const [consoleLogs, setConsoleLogs] = useState([
+    { type: "info", text: `[SISTEMA] Bienvenido, ${user?.nickname}. UMG Basic Rover 2.0 listo.` },
+    { type: "info", text: "[SISTEMA] Editor inicializado. Usa el menú COMPILAR para ejecutar." },
+  ]);
+  const [activePanel, setActivePanel] = useState("simulator");
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [programs, setPrograms] = useState([]);
+  const [showPrograms, setShowPrograms] = useState(false);
+  const [sendingCredential, setSendingCredential] = useState(false);
 
-    try {
-      const res = await fetch(`${API}/evidencias/mis-evidencias`, {
-        headers: buildHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "No se pudieron cargar las evidencias");
-      }
-
-      setEvidencias(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err.message || "Error al cargar evidencias");
-      setEvidencias([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [buildHeaders]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    fetchEvidencias();
-  }, [fetchEvidencias]);
+    setActivePanel("simulator");
+    setIsSimulating(false);
+  }, []);
 
-  const handleUploadFaceEvidence = async () => {
-    setError("");
-    setSuccess("");
+  const addLog = useCallback((type, text) => {
+    setConsoleLogs((prev) => [
+      ...prev,
+      { type, text: `[${new Date().toLocaleTimeString()}] ${text}` },
+    ]);
+  }, []);
 
-    if (!facePreview) {
-      setError("Primero debes capturar una imagen.");
+  const handleReenviarCredencial = async () => {
+    if (!user?.id) {
+      addLog("error", "No hay sesión activa para reenviar la credencial.");
       return;
     }
 
-    setSaving(true);
+    setSendingCredential(true);
+
+    try {
+      const data = await credentialService.resend(user.id);
+      const delivery = data.delivery || {};
+
+      addLog(
+        "success",
+        `Credencial reenviada. Correo: ${delivery.email || "pendiente"} | WhatsApp: ${
+          delivery.whatsapp || "pendiente"
+        }`
+      );
+    } catch (err) {
+      addLog("error", err.message || "Error al reenviar credencial");
+    } finally {
+      setSendingCredential(false);
+    }
+  };
+
+  const handleDescargarCredencial = () => {
+    if (!user?.id) return;
+    credentialService.download(user.id);
+    addLog("info", "Abriendo credencial PDF...");
+  };
+
+  const handleCompile = async ({ simulate = false, execute = false } = {}) => {
+    addLog("info", "Iniciando compilación...");
+    setCompileResult(null);
+    setIsSimulating(false);
 
     try {
       const payload = {
-        tipo_evidencia: "FOTO",
-        nombre_archivo: `evidencia_${Date.now()}.jpg`,
-        archivo_base64: facePreview,
-        descripcion: "Evidencia subida desde Mi Perfil",
-        fecha_captura: new Date().toISOString().slice(0, 19).replace("T", " "),
-        es_principal: false,
+        code,
+        program_name: "programa",
+        descripcion: null,
+        rover_id: null,
+        save_on_success: simulate || execute,
       };
 
-      const res = await fetch(`${API}/evidencias/`, {
-        method: "POST",
-        headers: buildHeaders(true),
-        body: JSON.stringify(payload),
-      });
+      const data = await compilerService.compile(payload);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "No se pudo guardar la evidencia");
-      }
-
-      setSuccess("Evidencia subida correctamente.");
-      setFacePreview(null);
-      fetchEvidencias();
-    } catch (err) {
-      setError(err.message || "Error al subir evidencia");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSetPrincipal = async (evidenceId) => {
-    setError("");
-    setSuccess("");
-
-    try {
-      const res = await fetch(`${API}/evidencias/${evidenceId}/principal`, {
-        method: "PUT",
-        headers: buildHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.detail || "No se pudo actualizar la evidencia principal",
+      if (data.success) {
+        addLog(
+          "success",
+          `✓ Compilación exitosa — ${data.instructions?.length || 0} instrucción(es)`
         );
-      }
 
-      setSuccess("Evidencia principal actualizada.");
-      fetchEvidencias();
+        if (data.saved_program_id) {
+          addLog("info", `Programa guardado con ID: ${data.saved_program_id}`);
+        }
+
+        if (data.simulation_id) {
+          addLog("info", `Simulación registrada: ${data.simulation_id}`);
+        }
+
+        if (data.tokens?.length) {
+          addLog("info", `Tokens generados: ${data.tokens.length}`);
+        }
+
+        setCompileResult(data);
+
+        if (simulate || execute) {
+          setIsSimulating(true);
+          setActivePanel("simulator");
+          addLog(
+            "info",
+            execute
+              ? "Transmitiendo instrucciones al UMG Basic Rover 2.0..."
+              : "Iniciando simulación de trayectoria..."
+          );
+        }
+      } else {
+        (data.errors || []).forEach((e) => addLog("error", e));
+        setCompileResult({
+          success: false,
+          errors: data.errors || [],
+          tokens: [],
+          instructions: [],
+        });
+      }
     } catch (err) {
-      setError(err.message || "Error al actualizar evidencia principal");
+      addLog("error", `Error de compilación/red: ${err.message}`);
     }
   };
 
-  const handleDeleteEvidence = async (evidenceId) => {
-    setError("");
-    setSuccess("");
+  const handleNew = () => {
+    setCode(DEFAULT_CODE);
+    setCompileResult(null);
+    setIsSimulating(false);
+    setActivePanel("simulator");
+    addLog("info", "Nuevo programa creado.");
+  };
+
+  const handleOpen = () => fileInputRef.current?.click();
+
+  const handleFileRead = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setCode(ev.target.result);
+      setCompileResult(null);
+      setIsSimulating(false);
+      setActivePanel("simulator");
+      addLog("info", `Archivo abierto: ${file.name}`);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleSave = () => {
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "programa.umgpp";
+    a.click();
+    URL.revokeObjectURL(url);
+    addLog("success", "Archivo guardado como .umgpp");
+  };
+
+  const handleSaveServer = async () => {
+    if (!saveName.trim()) {
+      addLog("warn", "Debes indicar un nombre para guardar el programa.");
+      return;
+    }
 
     try {
-      const res = await fetch(`${API}/evidencias/${evidenceId}`, {
-        method: "DELETE",
-        headers: buildHeaders(),
+      await compilerService.save({
+        code,
+        program_name: saveName.trim(),
+        descripcion: null,
+        rover_id: null,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "No se pudo eliminar la evidencia");
-      }
-
-      setSuccess("Evidencia eliminada.");
-      fetchEvidencias();
+      addLog("success", `Programa "${saveName}" guardado en servidor.`);
+      setShowSaveModal(false);
+      setSaveName("");
     } catch (err) {
-      setError(err.message || "Error al eliminar evidencia");
+      addLog("error", err.message || "Error al guardar en servidor.");
     }
+  };
+
+  const loadPrograms = async () => {
+    try {
+      const data = await compilerService.getPrograms();
+      setPrograms(Array.isArray(data) ? data : []);
+      setShowPrograms(true);
+      addLog("info", "Programas del servidor cargados.");
+    } catch (err) {
+      addLog("error", err.message || "Error al cargar programas.");
+    }
+  };
+
+  const loadCoreografia = (choreo) => {
+    setCode(choreo.code);
+    setCompileResult(null);
+    setIsSimulating(false);
+    setActivePanel("simulator");
+    addLog("info", `Coreografía "${choreo.name}" cargada.`);
+    addLog("info", `♪ Música: ${choreo.song}`);
+  };
+
+  const handlePrint = () => window.print();
+
+  const menuActions = {
+    onNew: handleNew,
+    onOpen: handleOpen,
+    onSave: handleSave,
+    onSaveServer: () => setShowSaveModal(true),
+    onOpenServer: loadPrograms,
+    onPrint: handlePrint,
+    onCompile: () => handleCompile({ simulate: false, execute: false }),
+    onCompileSimulate: () => handleCompile({ simulate: true, execute: false }),
+    onCompileExecute: () => handleCompile({ simulate: true, execute: true }),
+    coreografias: COREOGRAFIAS,
+    onLoadCoreografia: loadCoreografia,
+    onLogout,
+    onDashboard,
+    onProfile,
+    onReenviarCredencial: handleReenviarCredencial,
+    onDescargarCredencial: handleDescargarCredencial,
+    sendingCredential,
+    user,
   };
 
   return (
-    <div className="profile-root">
+    <div className="editor-root">
       <div className="scanline" />
 
-      <div className="profile-topbar">
-        <div className="profile-brand">
+      <div className="editor-topbar">
+        <div className="editor-brand">
           <img src={logoUMG} alt="Logo UMG" className="brand-logo" />
-          <span className="brand-name">UMG ROVER — MI PERFIL</span>
+          <span className="brand-icon">⬡</span>
+          <span className="brand-name">UMG ROVER</span>
+          <span className="brand-version">2.0</span>
         </div>
 
-        <div className="profile-actions">
-          {onBack && (
-            <button className="btn btn-sm btn-primary" onClick={onBack}>
-              ← VOLVER
-            </button>
-          )}
+        <Menubar {...menuActions} />
+
+        <div className="editor-user">
+          <div className="user-avatar">
+            {avatarSrc ? <img src={avatarSrc} alt="avatar" /> : <span>👤</span>}
+          </div>
+
+          <div className="user-info">
+            <span className="user-nick">{user?.nickname}</span>
+            <span className="user-role">{user?.role?.toUpperCase()}</span>
+          </div>
+
           <button className="btn btn-sm btn-danger" onClick={onLogout}>
             EXIT
           </button>
         </div>
       </div>
 
-      <div className="profile-body">
-        <div className="profile-left panel corner-tl">
-          <div className="panel-header">PERFIL DEL PILOTO</div>
-
-          <div className="profile-avatar-wrap">
-            <div className="profile-avatar">
-              {avatarSrc ? (
-                <img src={avatarSrc} alt="avatar" />
-              ) : (
-                <span>👤</span>
-              )}
+      <div className="editor-body">
+        <div className="editor-pane">
+          <div className="pane-header">
+            <span className="status-dot active" />
+            <span className="pane-title">EDITOR DE CÓDIGO</span>
+            <div className="pane-actions">
+              <button
+                className="btn btn-sm btn-success"
+                onClick={() => handleCompile({ simulate: false, execute: false })}
+              >
+                ▶ COMPILAR
+              </button>
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => handleCompile({ simulate: true, execute: false })}
+              >
+                ⚡ SIMULAR
+              </button>
             </div>
           </div>
 
-          <div className="profile-data">
-            <div className="profile-line">
-              <span className="profile-label">NICKNAME</span>
-              <span className="profile-value">{user?.nickname || "—"}</span>
-            </div>
+          <CodeEditor value={code} onChange={setCode} />
+        </div>
 
-            <div className="profile-line">
-              <span className="profile-label">EMAIL</span>
-              <span className="profile-value">{user?.email || "—"}</span>
-            </div>
-
-            <div className="profile-line">
-              <span className="profile-label">ROL</span>
-              <span className="profile-value">
-                {user?.role?.toUpperCase() || "—"}
-              </span>
-            </div>
-          </div>
-
-          <div className="profile-upload-block">
-            <div className="panel-header" style={{ marginBottom: 12 }}>
-              NUEVA EVIDENCIA
-            </div>
-
-            <WebcamCapture
-              label="📸 Capturar evidencia"
-              preview={facePreview}
-              onCapture={(dataUrl) => setFacePreview(dataUrl)}
-              height={220}
-            />
-
+        <div className="editor-right">
+          <div className="tab-bar">
             <button
-              className="btn btn-primary auth-submit"
-              onClick={handleUploadFaceEvidence}
-              disabled={saving}
-              style={{ marginTop: 14 }}
+              className={`tab ${activePanel === "simulator" ? "active" : ""}`}
+              onClick={() => setActivePanel("simulator")}
             >
-              {saving ? "SUBIENDO..." : "⬆ SUBIR EVIDENCIA"}
+              🗺 SIMULADOR
+            </button>
+            <button
+              className={`tab ${activePanel === "tokens" ? "active" : ""}`}
+              onClick={() => setActivePanel("tokens")}
+            >
+              📋 TOKENS
             </button>
           </div>
 
-          {error && (
-            <div className="auth-error" style={{ marginTop: 14 }}>
-              <span>⚠</span> {error}
-            </div>
-          )}
+          <div className="right-panel">
+            {activePanel === "simulator" && (
+              <Simulator
+                instructions={compileResult?.instructions || []}
+                isRunning={isSimulating}
+                onDone={() => {
+                  setIsSimulating(false);
+                  addLog("success", "✓ Simulación completada.");
+                }}
+              />
+            )}
 
-          {success && (
-            <div className="auth-ok" style={{ marginTop: 14 }}>
-              ✓ {success}
-            </div>
-          )}
-        </div>
-
-        <div className="profile-right panel corner-tl">
-          <div className="panel-header">
-            MIS EVIDENCIAS ({Array.isArray(evidencias) ? evidencias.length : 0})
+            {activePanel === "tokens" && (
+              <TokenTable tokens={compileResult?.tokens || []} />
+            )}
           </div>
 
-          {loading ? (
-            <div className="profile-loading">
-              <div className="loading-spinner" />
-              <span>Cargando evidencias...</span>
-            </div>
-          ) : evidencias.length === 0 ? (
-            <div className="profile-empty">No hay evidencias registradas.</div>
-          ) : (
-            <div className="profile-evidence-grid">
-              {evidencias.map((ev) => (
-                <div key={ev.id} className="evidence-card panel">
-                  <div className="evidence-top">
-                    <span className="evidence-type">{ev.tipo_evidencia}</span>
-                    {ev.es_principal ? (
-                      <span className="badge badge-on">● PRINCIPAL</span>
-                    ) : (
-                      <span className="badge badge-off">SECUNDARIA</span>
-                    )}
-                  </div>
-
-                  <div className="evidence-name">{ev.nombre_archivo}</div>
-                  <div className="evidence-desc">
-                    {ev.descripcion || "Sin descripción"}
-                  </div>
-                  <div className="evidence-date">
-                    {ev.fecha_subida
-                      ? new Date(ev.fecha_subida).toLocaleString()
-                      : "—"}
-                  </div>
-
-                  <div className="evidence-actions">
-                    {!ev.es_principal && (
-                      <button
-                        className="btn btn-sm btn-primary"
-                        onClick={() => handleSetPrincipal(ev.id)}
-                      >
-                        ★ PRINCIPAL
-                      </button>
-                    )}
-
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDeleteEvidence(ev.id)}
-                    >
-                      🗑 ELIMINAR
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <Console logs={consoleLogs} onClear={() => setConsoleLogs([])} />
         </div>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".umgpp,.txt"
+        onChange={handleFileRead}
+        style={{ display: "none" }}
+      />
+
+      {showSaveModal && (
+        <div className="modal-overlay" onClick={() => setShowSaveModal(false)}>
+          <div
+            className="modal panel corner-tl corner-br"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-title">GUARDAR EN SERVIDOR</div>
+            <label className="label">NOMBRE DEL PROGRAMA</label>
+            <input
+              className="input"
+              placeholder="MiPrograma"
+              value={saveName}
+              onChange={(e) => setSaveName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSaveServer()}
+              autoFocus
+            />
+            <div className="modal-actions">
+              <button className="btn btn-primary" onClick={handleSaveServer}>
+                💾 GUARDAR
+              </button>
+              <button className="btn" onClick={() => setShowSaveModal(false)}>
+                CANCELAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPrograms && (
+        <div className="modal-overlay" onClick={() => setShowPrograms(false)}>
+          <div
+            className="modal panel corner-tl corner-br"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: 500 }}
+          >
+            <div className="modal-title">MIS PROGRAMAS</div>
+            <div className="programs-list">
+              {programs.length === 0 ? (
+                <p
+                  className="console-text"
+                  style={{ color: "var(--text-dim)", textAlign: "center", padding: 20 }}
+                >
+                  No hay programas guardados
+                </p>
+              ) : (
+                programs.map((p) => (
+                  <div
+                    key={p.id}
+                    className="program-item"
+                    onClick={() => {
+                      setCode(p.codigo || p.codigo_actual || "");
+                      setShowPrograms(false);
+                      setActivePanel("simulator");
+                      addLog("info", `Programa "${p.nombre}" cargado.`);
+                    }}
+                  >
+                    <span className="program-name">{p.nombre}</span>
+                    <span className="program-date">
+                      {p.created_at
+                        ? new Date(p.created_at).toLocaleDateString()
+                        : "—"}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              className="btn"
+              onClick={() => setShowPrograms(false)}
+              style={{ marginTop: 12 }}
+            >
+              CERRAR
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
