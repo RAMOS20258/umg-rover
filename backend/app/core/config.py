@@ -4,7 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-production")
+# =========================
+# SEGURIDAD
+# =========================
+SECRET_KEY = os.getenv("SECRET_KEY", "acee5a7f3b0c7cf147aa9d821dd7ad8d835983085e6eab34a1aab4406bdc7715")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
@@ -29,35 +32,44 @@ MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
 MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
 MAIL_FROM = os.getenv("MAIL_FROM", MAIL_USERNAME or "no-reply@umgrover.local")
 MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "UMG Rover")
+
 MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
 MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+
 MAIL_STARTTLS = os.getenv("MAIL_STARTTLS", "true").lower() == "true"
 MAIL_SSL_TLS = os.getenv("MAIL_SSL_TLS", "false").lower() == "true"
 
 # =========================
-# WhatsApp / Twilio
+# WhatsApp
 # =========================
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
-TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "")
+WHATSAPP_NODE_SERVICE_URL = os.getenv(
+    "WHATSAPP_NODE_SERVICE_URL",
+    "https://umg-rover-production.up.railway.app"
+).rstrip("/")
 
 # =========================
-# API base
+# API BASE (FIJO)
 # =========================
-PUBLIC_API_BASE = os.getenv("PUBLIC_API_BASE", "https://backend-production-793b.up.railway.app/")
+PUBLIC_API_BASE = os.getenv(
+    "PUBLIC_API_BASE",
+    "https://backend-production-793b.up.railway.app"
+).rstrip("/")
 
 # =========================
-# Railway / entorno
+# Railway
 # =========================
 IS_RAILWAY = bool(os.getenv("RAILWAY_PROJECT_ID") or os.getenv("RAILWAY_ENVIRONMENT"))
 
+# =========================
+# RUTAS
+# =========================
 BASE_DIR = Path(__file__).resolve().parents[2]
+
 STORAGE_DIR = BASE_DIR / "storage"
 CREDENTIALS_DIR = STORAGE_DIR / "credenciales"
 FACES_DIR = STORAGE_DIR / "faces"
 EVIDENCES_DIR = STORAGE_DIR / "evidencias"
 
-# En Railway esto puede no ser persistente, pero lo dejamos para funcionamiento base.
 STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 CREDENTIALS_DIR.mkdir(parents=True, exist_ok=True)
 FACES_DIR.mkdir(parents=True, exist_ok=True)
