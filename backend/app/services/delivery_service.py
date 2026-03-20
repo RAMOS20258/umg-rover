@@ -20,15 +20,9 @@ from app.core.config import (
 )
 
 
-# =========================
-# CONFIG WHATSAPP NODE
-# =========================
 WHATSAPP_NODE_SERVICE_URL = os.getenv("WHATSAPP_NODE_SERVICE_URL", "").rstrip("/")
 
 
-# =========================
-# MODELO DE RESPUESTA
-# =========================
 class DeliveryStatus(BaseModel):
     email: str
     whatsapp: str
@@ -44,9 +38,6 @@ def build_delivery_status(email_status: str, whatsapp_status: str, user_id: str)
     )
 
 
-# =========================
-# EMAIL
-# =========================
 def send_email_with_pdf(email: str, nickname: str, pdf_path: Path, user_id: str) -> str:
     if not email or not email.strip():
         raise ValueError("El correo del destinatario está vacío")
@@ -91,26 +82,39 @@ UMG Rover 2.0
         filename=pdf_path.name,
     )
 
+    print("=== SMTP DEBUG ===")
+    print("MAIL_SERVER:", MAIL_SERVER)
+    print("MAIL_PORT:", MAIL_PORT)
+    print("MAIL_USERNAME:", MAIL_USERNAME)
+    print("MAIL_FROM:", MAIL_FROM)
+    print("MAIL_STARTTLS:", MAIL_STARTTLS)
+    print("MAIL_SSL_TLS:", MAIL_SSL_TLS)
+    print("MAIL_PASSWORD_SET:", bool(MAIL_PASSWORD))
+    print("DESTINATARIO:", email)
+    print("==================")
+
     try:
         if MAIL_SSL_TLS:
             with smtplib.SMTP_SSL(MAIL_SERVER, MAIL_PORT, timeout=30) as server:
+                server.ehlo()
                 server.login(MAIL_USERNAME, MAIL_PASSWORD)
                 server.send_message(msg)
         else:
             with smtplib.SMTP(MAIL_SERVER, MAIL_PORT, timeout=30) as server:
+                server.ehlo()
                 if MAIL_STARTTLS:
                     server.starttls()
+                    server.ehlo()
                 server.login(MAIL_USERNAME, MAIL_PASSWORD)
                 server.send_message(msg)
 
         return "enviado"
+
     except Exception as exc:
+        print("SMTP ERROR REAL:", repr(exc))
         raise RuntimeError(f"Error SMTP enviando correo: {exc}") from exc
 
 
-# =========================
-# WHATSAPP
-# =========================
 def normalize_phone(phone: str) -> str:
     if not phone:
         raise ValueError("El número de teléfono es obligatorio")
