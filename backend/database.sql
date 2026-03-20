@@ -1017,3 +1017,18 @@ CREATE INDEX ix_credenciales_estado    ON credenciales_pdf(estado);
 
 CREATE INDEX ix_evidencias_conductor ON evidencias_conductor(conductor_id);
 CREATE INDEX ix_evidencias_tipo      ON evidencias_conductor(tipo_evidencia);
+
+CREATE TABLE auditoria_general (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    conductor_id VARCHAR(36) NULL,
+    tabla_afectada VARCHAR(100) NOT NULL,
+    registro_id VARCHAR(36) NOT NULL,
+    accion VARCHAR(50) NOT NULL,
+    datos_anteriores LONGTEXT NULL,
+    datos_nuevos LONGTEXT NULL,
+    fecha_evento DATETIME NOT NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent TEXT NULL,
+    observaciones TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

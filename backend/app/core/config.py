@@ -44,7 +44,7 @@ TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "")
 # =========================
 # API base
 # =========================
-PUBLIC_API_BASE = os.getenv("PUBLIC_API_BASE", "http://localhost:8000")
+PUBLIC_API_BASE = os.getenv("PUBLIC_API_BASE", "https://backend-production-793b.up.railway.app/")
 
 # =========================
 # Railway / entorno
