@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import "./styles/global.css";
 
+
 export const AuthContext = createContext(null);
 
 export function useAuth() {

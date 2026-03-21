@@ -7,6 +7,12 @@ import Menubar from "../components/Menubar";
 import TokenTable from "../components/TokenTable";
 import { compilerService } from "../services/compilerService";
 import { credentialService } from "../services/credentialService";
+import {
+  getRoverStatus,
+  compileAndRunRover,
+  stopRover,
+  sendManualCommand,
+} from "../services/roverApi";
 import "../styles/editor.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
 
@@ -109,6 +115,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
   const [programs, setPrograms] = useState([]);
   const [showPrograms, setShowPrograms] = useState(false);
   const [sendingCredential, setSendingCredential] = useState(false);
+  const [roverStatus, setRoverStatus] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -122,6 +129,22 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
       ...prev,
       { type, text: `[${new Date().toLocaleTimeString()}] ${text}` },
     ]);
+  }, []);
+
+  useEffect(() => {
+    const loadRoverStatus = async () => {
+      try {
+        const data = await getRoverStatus();
+        setRoverStatus(data);
+      } catch {
+        setRoverStatus(null);
+      }
+    };
+
+    loadRoverStatus();
+    const interval = setInterval(loadRoverStatus, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleReenviarCredencial = async () => {
@@ -212,6 +235,38 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
       }
     } catch (err) {
       addLog("error", `Error de compilación/red: ${err.message}`);
+    }
+  };
+
+  const handleCompileAndExecuteRover = async () => {
+    addLog("info", "Compilando coreografía para el carrito...");
+
+    try {
+      const data = await compileAndRunRover(code);
+      addLog("success", data.message || "Coreografía enviada al rover.");
+      if (data.queue?.length) {
+        addLog("info", `Cola generada para el rover: ${data.queue.length} comando(s).`);
+      }
+    } catch (err) {
+      addLog("error", err.message || "Error ejecutando en el rover.");
+    }
+  };
+
+  const handleRoverStop = async () => {
+    try {
+      const data = await stopRover();
+      addLog("warn", data.message || "Rover detenido.");
+    } catch (err) {
+      addLog("error", err.message || "Error al detener el rover.");
+    }
+  };
+
+  const handleManualMove = async (cmd) => {
+    try {
+      const data = await sendManualCommand(cmd);
+      addLog("info", data.message || `Comando manual enviado: ${cmd}`);
+    } catch (err) {
+      addLog("error", err.message || `Error enviando comando ${cmd}`);
     }
   };
 
@@ -332,6 +387,17 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
         <Menubar {...menuActions} />
 
         <div className="editor-user">
+          <div style={{ marginRight: 14, textAlign: "right" }}>
+            <div style={{ fontSize: 12, opacity: 0.8 }}>ROVER</div>
+            <div style={{ fontSize: 13, fontWeight: 700 }}>
+              {roverStatus?.connected ? (
+                <span style={{ color: "#00ff88" }}>🟢 CONECTADO</span>
+              ) : (
+                <span style={{ color: "#ff4d6d" }}>🔴 DESCONECTADO</span>
+              )}
+            </div>
+          </div>
+
           <div className="user-avatar">
             {avatarSrc ? <img src={avatarSrc} alt="avatar" /> : <span>👤</span>}
           </div>
@@ -352,7 +418,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
           <div className="pane-header">
             <span className="status-dot active" />
             <span className="pane-title">EDITOR DE CÓDIGO</span>
-            <div className="pane-actions">
+            <div className="pane-actions" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 className="btn btn-sm btn-success"
                 onClick={() => handleCompile({ simulate: false, execute: false })}
@@ -365,10 +431,37 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
               >
                 ⚡ SIMULAR
               </button>
+              <button
+                className="btn btn-sm btn-warning"
+                onClick={handleCompileAndExecuteRover}
+              >
+                🤖 EJECUTAR EN CARRITO
+              </button>
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={handleRoverStop}
+              >
+                🛑 STOP
+              </button>
             </div>
           </div>
 
           <CodeEditor value={code} onChange={setCode} />
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: "10px 12px" }}>
+            <button className="btn btn-sm" onClick={() => handleManualMove("forward")}>
+              ↑ ADELANTE
+            </button>
+            <button className="btn btn-sm" onClick={() => handleManualMove("left")}>
+              ← IZQUIERDA
+            </button>
+            <button className="btn btn-sm" onClick={() => handleManualMove("right")}>
+              → DERECHA
+            </button>
+            <button className="btn btn-sm" onClick={() => handleManualMove("backward")}>
+              ↓ ATRÁS
+            </button>
+          </div>
         </div>
 
         <div className="editor-right">
