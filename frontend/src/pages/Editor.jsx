@@ -12,7 +12,7 @@ import {
   compileAndRunRover,
   stopRover,
   sendManualCommand,
-} from "../services/roverApi";
+} from "../services/roverapi";
 import "../styles/editor.css";
 import logoUMG from "../assets/avatar-presets/umg/LOGOUMG.png";
 
