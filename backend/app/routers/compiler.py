@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
@@ -19,16 +20,16 @@ def _get_client_meta(request: Request):
 
 def _save_compiler_error(
     db,
-    programa_id: str | None,
+    programa_id: Optional[str],
     conductor_id: str,
     tipo_error: str,
     mensaje_error: str,
-    fragmento_codigo: str | None = None,
-    linea: int | None = None,
-    columna_error: int | None = None,
-    simulacion_id: str | None = None,
-    ejecucion_id: str | None = None,
-    codigo_error: str | None = None,
+    fragmento_codigo: Optional[str] = None,
+    linea: Optional[int] = None,
+    columna_error: Optional[int] = None,
+    simulacion_id: Optional[str] = None,
+    ejecucion_id: Optional[str] = None,
+    codigo_error: Optional[str] = None,
     severidad: str = "MEDIA",
 ):
     cursor = db.cursor()
@@ -73,8 +74,8 @@ def _insert_program(
     conductor_id: str,
     nombre: str,
     codigo_actual: str,
-    descripcion: str | None = None,
-    rover_id: str | None = None,
+    descripcion: Optional[str] = None,
+    rover_id: Optional[str] = None,
     estado: str = "BORRADOR",
     lenguaje: str = "UMG_BASIC",
 ):
@@ -141,8 +142,8 @@ def _create_simulation(
     programa_id: str,
     conductor_id: str,
     exito: bool,
-    salida_log: str | None,
-    errores: str | None,
+    salida_log: Optional[str],
+    errores: Optional[str],
 ):
     simulacion_id = str(uuid.uuid4())
     cursor = db.cursor()
@@ -187,9 +188,12 @@ async def compile_code(
     ip_address, user_agent = _get_client_meta(request)
 
     try:
-        from compiler.lexer import Lexer
-        from compiler.parser import Parser
-        from compiler.semantic import SemanticAnalyzer
+        from app.compiler.lexer import Lexer
+        from app.compiler.parser import Parser
+        from app.compiler.semantic import SemanticAnalyzer
+
+        if not req.code or not req.code.strip():
+            raise Exception("El código fuente está vacío")
 
         lexer = Lexer(req.code)
         tokens = lexer.tokenize()
@@ -245,7 +249,7 @@ async def compile_code(
 
         return {
             "success": True,
-            "tokens": [t.__dict__ for t in tokens],
+            "tokens": [t.to_dict() if hasattr(t, "to_dict") else t.__dict__ for t in tokens],
             "ast": ast,
             "instructions": instructions,
             "errors": [],
