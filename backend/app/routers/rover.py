@@ -4,10 +4,10 @@ from typing import Dict
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.compiler.lexer import Lexer, get_token_table
-from app.compiler.parser import Parser
-from app.compiler.semantic import SemanticAnalyzer, transpile_to_python
-from app.compiler.executor import semantic_to_rover_commands
+from compiler.lexer import Lexer, get_token_table
+from compiler.parser import Parser
+from compiler.semantic import SemanticAnalyzer, transpile_to_python
+from compiler.executor import semantic_to_rover_commands
 
 router = APIRouter(prefix="/api/rover", tags=["Rover"])
 
