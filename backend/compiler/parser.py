@@ -29,6 +29,7 @@ class ASTNode:
     node_type: str
 
     def to_dict(self) -> Dict:
+        
         return {"node_type": self.node_type}
 
 

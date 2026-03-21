@@ -188,9 +188,9 @@ async def compile_code(
     ip_address, user_agent = _get_client_meta(request)
 
     try:
-        from app.compiler.lexer import Lexer
-        from app.compiler.parser import Parser
-        from app.compiler.semantic import SemanticAnalyzer
+        from compiler.lexer import Lexer
+        from compiler.parser import Parser
+        from compiler.semantic import SemanticAnalyzer
 
         if not req.code or not req.code.strip():
             raise Exception("El código fuente está vacío")
