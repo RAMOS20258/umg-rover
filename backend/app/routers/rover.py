@@ -1,6 +1,4 @@
 from datetime import datetime
-from typing import Dict
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -11,7 +9,6 @@ from compiler.executor import semantic_to_rover_commands
 
 router = APIRouter(prefix="/api/rover", tags=["Rover"])
 
-# Estado global simple para Railway
 ROVER_STATE = {
     "current_command": "stop",
     "updated_at": None,
@@ -19,6 +16,7 @@ ROVER_STATE = {
     "current_index": 0,
     "running": False,
     "last_compilation": None,
+    "last_ping": None,
 }
 
 
@@ -33,12 +31,12 @@ class ManualCommandRequest(BaseModel):
 VALID_COMMANDS = {"forward", "backward", "left", "right", "stop"}
 
 
+def utc_now():
+    return datetime.utcnow().isoformat() + "Z"
+
+
 @router.post("/compile")
 def compile_umg_code(payload: SourceCodeRequest):
-    """
-    Compila código UMG++, genera AST, validación semántica,
-    transpila a Python y prepara la cola de comandos del rover.
-    """
     try:
         if not payload.source_code.strip():
             raise HTTPException(status_code=400, detail="El código fuente está vacío")
@@ -63,7 +61,7 @@ def compile_umg_code(payload: SourceCodeRequest):
         ROVER_STATE["current_index"] = 0
         ROVER_STATE["running"] = len(rover_queue) > 0
         ROVER_STATE["current_command"] = "stop"
-        ROVER_STATE["updated_at"] = datetime.utcnow().isoformat() + "Z"
+        ROVER_STATE["updated_at"] = utc_now()
         ROVER_STATE["last_compilation"] = {
             "program_name": semantic_result["program_name"],
             "instructions_count": len(semantic_result["instructions"]),
@@ -89,10 +87,8 @@ def compile_umg_code(payload: SourceCodeRequest):
 
 @router.get("/next-command")
 def get_next_command():
-    """
-    Endpoint que consultará el ESP32 en Railway.
-    Devuelve el siguiente comando de la cola.
-    """
+    ROVER_STATE["last_ping"] = utc_now()
+
     if not ROVER_STATE["running"] or not ROVER_STATE["queue"]:
         return {
             "ok": True,
@@ -105,7 +101,7 @@ def get_next_command():
     if ROVER_STATE["current_index"] >= len(ROVER_STATE["queue"]):
         ROVER_STATE["running"] = False
         ROVER_STATE["current_command"] = "stop"
-        ROVER_STATE["updated_at"] = datetime.utcnow().isoformat() + "Z"
+        ROVER_STATE["updated_at"] = utc_now()
 
         return {
             "ok": True,
@@ -117,7 +113,7 @@ def get_next_command():
 
     command = ROVER_STATE["queue"][ROVER_STATE["current_index"]]
     ROVER_STATE["current_command"] = command["cmd"]
-    ROVER_STATE["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    ROVER_STATE["updated_at"] = utc_now()
     ROVER_STATE["current_index"] += 1
 
     return {
@@ -132,9 +128,6 @@ def get_next_command():
 
 @router.post("/manual-command")
 def set_manual_command(payload: ManualCommandRequest):
-    """
-    Para pruebas manuales desde tu panel web.
-    """
     cmd = payload.cmd.lower().strip()
 
     if cmd not in VALID_COMMANDS:
@@ -144,7 +137,7 @@ def set_manual_command(payload: ManualCommandRequest):
     ROVER_STATE["current_index"] = 0
     ROVER_STATE["running"] = True
     ROVER_STATE["current_command"] = cmd
-    ROVER_STATE["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    ROVER_STATE["updated_at"] = utc_now()
 
     return {
         "ok": True,
@@ -160,7 +153,7 @@ def stop_rover():
     ROVER_STATE["current_index"] = 0
     ROVER_STATE["running"] = False
     ROVER_STATE["current_command"] = "stop"
-    ROVER_STATE["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    ROVER_STATE["updated_at"] = utc_now()
 
     return {
         "ok": True,
@@ -171,7 +164,18 @@ def stop_rover():
 
 @router.get("/status")
 def rover_status():
+    connected = False
+
+    if ROVER_STATE["last_ping"]:
+        try:
+            last_ping = datetime.fromisoformat(ROVER_STATE["last_ping"].replace("Z", ""))
+            diff = (datetime.utcnow() - last_ping).total_seconds()
+            connected = diff < 3
+        except Exception:
+            connected = False
+
     return {
         "ok": True,
+        "connected": connected,
         "state": ROVER_STATE,
     }
