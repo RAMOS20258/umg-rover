@@ -1,3 +1,18 @@
+# WhatsApp session
+backend/whatsapp-service/.wwebjs_auth/
+backend/whatsapp-service/.wwebjs_cache/
+
+# Node modules
+backend/whatsapp-service/node_modules/
+
+# Python env
+backend/.env
+backend/__pycache__/
+backend/app/__pycache__/
+
+# General
+*.log
+
 # Python
 __pycache__/
 *.pyc
