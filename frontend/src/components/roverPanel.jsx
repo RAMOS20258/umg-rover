@@ -4,7 +4,7 @@ import {
   compileAndRun,
   stopRover,
   sendManualCommand,
-} from "../services/roverApi";
+} from "..src/services/roverApi";
 
 export default function RoverPanel() {
   const [code, setCode] = useState(
