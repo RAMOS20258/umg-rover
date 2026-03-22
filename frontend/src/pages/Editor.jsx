@@ -105,11 +105,18 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
   const [code, setCode] = useState(DEFAULT_CODE);
   const [compileResult, setCompileResult] = useState(null);
   const [consoleLogs, setConsoleLogs] = useState([
-    { type: "info", text: `[SISTEMA] Bienvenido, ${user?.nickname}. UMG Basic Rover 2.0 listo.` },
-    { type: "info", text: "[SISTEMA] Editor inicializado. Usa el menú COMPILAR para ejecutar." },
+    {
+      type: "info",
+      text: `[SISTEMA] Bienvenido, ${user?.nickname}. UMG Basic Rover 2.0 listo.`,
+    },
+    {
+      type: "info",
+      text: "[SISTEMA] Editor inicializado. Usa el menú COMPILAR para ejecutar.",
+    },
   ]);
   const [activePanel, setActivePanel] = useState("simulator");
   const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationRunId, setSimulationRunId] = useState(0);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [programs, setPrograms] = useState([]);
@@ -163,7 +170,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
         "success",
         `Credencial reenviada. Correo: ${delivery.email || "pendiente"} | WhatsApp: ${
           delivery.whatsapp || "pendiente"
-        }`
+        }`,
       );
     } catch (err) {
       addLog("error", err.message || "Error al reenviar credencial");
@@ -197,7 +204,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
       if (data.success) {
         addLog(
           "success",
-          `✓ Compilación exitosa — ${data.instructions?.length || 0} instrucción(es)`
+          `✓ Compilación exitosa — ${data.instructions?.length || 0} instrucción(es)`,
         );
 
         if (data.saved_program_id) {
@@ -215,13 +222,14 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
         setCompileResult(data);
 
         if (simulate || execute) {
+          setSimulationRunId((prev) => prev + 1);
           setIsSimulating(true);
           setActivePanel("simulator");
           addLog(
             "info",
             execute
               ? "Transmitiendo instrucciones al UMG Basic Rover 2.0..."
-              : "Iniciando simulación de trayectoria..."
+              : "Iniciando simulación de trayectoria...",
           );
         }
       } else {
@@ -245,7 +253,10 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
       const data = await compileAndRunRover(code);
       addLog("success", data.message || "Coreografía enviada al rover.");
       if (data.queue?.length) {
-        addLog("info", `Cola generada para el rover: ${data.queue.length} comando(s).`);
+        addLog(
+          "info",
+          `Cola generada para el rover: ${data.queue.length} comando(s).`,
+        );
       }
     } catch (err) {
       addLog("error", err.message || "Error ejecutando en el rover.");
@@ -418,11 +429,15 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
           <div className="pane-header">
             <span className="status-dot active" />
             <span className="pane-title">EDITOR DE CÓDIGO</span>
-            <div className="pane-actions" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-
+            <div
+              className="pane-actions"
+              style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+            >
               <button
                 className="btn btn-sm btn-primary"
-                onClick={() => handleCompile({ simulate: true, execute: false })}
+                onClick={() =>
+                  handleCompile({ simulate: true, execute: false })
+                }
               >
                 ⚡ SIMULAR
               </button>
@@ -436,7 +451,6 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
                 className="btn btn-sm btn-danger"
                 onClick={handleRoverStop}
               >
-                
                 🛑 STOP
               </button>
             </div>
@@ -444,17 +458,36 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
 
           <CodeEditor value={code} onChange={setCode} />
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", padding: "10px 12px" }}>
-            <button className="btn btn-sm" onClick={() => handleManualMove("forward")}>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+              padding: "10px 12px",
+            }}
+          >
+            <button
+              className="btn btn-sm"
+              onClick={() => handleManualMove("forward")}
+            >
               ↑ ADELANTE
             </button>
-            <button className="btn btn-sm" onClick={() => handleManualMove("left")}>
+            <button
+              className="btn btn-sm"
+              onClick={() => handleManualMove("left")}
+            >
               ← IZQUIERDA
             </button>
-            <button className="btn btn-sm" onClick={() => handleManualMove("right")}>
+            <button
+              className="btn btn-sm"
+              onClick={() => handleManualMove("right")}
+            >
               → DERECHA
             </button>
-            <button className="btn btn-sm" onClick={() => handleManualMove("backward")}>
+            <button
+              className="btn btn-sm"
+              onClick={() => handleManualMove("backward")}
+            >
               ↓ ATRÁS
             </button>
           </div>
@@ -481,6 +514,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
               <Simulator
                 instructions={compileResult?.instructions || []}
                 isRunning={isSimulating}
+                runId={simulationRunId}
                 onDone={() => {
                   setIsSimulating(false);
                   addLog("success", "✓ Simulación completada.");
@@ -545,7 +579,11 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
               {programs.length === 0 ? (
                 <p
                   className="console-text"
-                  style={{ color: "var(--text-dim)", textAlign: "center", padding: 20 }}
+                  style={{
+                    color: "var(--text-dim)",
+                    textAlign: "center",
+                    padding: 20,
+                  }}
                 >
                   No hay programas guardados
                 </p>
