@@ -419,12 +419,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
             <span className="status-dot active" />
             <span className="pane-title">EDITOR DE CÓDIGO</span>
             <div className="pane-actions" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
-                className="btn btn-sm btn-success"
-                onClick={() => handleCompile({ simulate: false, execute: false })}
-              >
-                ▶ COMPILAR
-              </button>
+
               <button
                 className="btn btn-sm btn-primary"
                 onClick={() => handleCompile({ simulate: true, execute: false })}
