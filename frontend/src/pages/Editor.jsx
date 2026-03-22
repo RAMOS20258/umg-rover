@@ -436,6 +436,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
                 className="btn btn-sm btn-danger"
                 onClick={handleRoverStop}
               >
+                
                 🛑 STOP
               </button>
             </div>
