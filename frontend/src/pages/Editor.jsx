@@ -398,14 +398,14 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
         <Menubar {...menuActions} />
 
         <div className="editor-user">
-          <div style={{ marginRight: 14, textAlign: "right" }}>
-            <div style={{ fontSize: 12, opacity: 0.8 }}>ROVER</div>
-            <div style={{ fontSize: 13, fontWeight: 700 }}>
-              {roverStatus?.connected ? (
-                <span style={{ color: "#00ff88" }}>🟢 CONECTADO</span>
-              ) : (
-                <span style={{ color: "#ff4d6d" }}>🔴 DESCONECTADO</span>
-              )}
+          <div className="rover-indicator">
+            <div className="rover-label">ROVER</div>
+            <div
+              className={`rover-state ${
+                roverStatus?.connected ? "connected" : "disconnected"
+              }`}
+            >
+              {roverStatus?.connected ? "🟢 CONECTADO" : "🔴 DESCONECTADO"}
             </div>
           </div>
 
@@ -429,10 +429,8 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
           <div className="pane-header">
             <span className="status-dot active" />
             <span className="pane-title">EDITOR DE CÓDIGO</span>
-            <div
-              className="pane-actions"
-              style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
-            >
+
+            <div className="pane-actions">
               <button
                 className="btn btn-sm btn-primary"
                 onClick={() =>
@@ -441,12 +439,14 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
               >
                 ⚡ SIMULAR
               </button>
+
               <button
                 className="btn btn-sm btn-warning"
                 onClick={handleCompileAndExecuteRover}
               >
                 🤖 EJECUTAR EN CARRITO
               </button>
+
               <button
                 className="btn btn-sm btn-danger"
                 onClick={handleRoverStop}
@@ -458,14 +458,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
 
           <CodeEditor value={code} onChange={setCode} />
 
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              flexWrap: "wrap",
-              padding: "10px 12px",
-            }}
-          >
+          <div className="manual-controls">
             <button
               className="btn btn-sm"
               onClick={() => handleManualMove("forward")}
@@ -546,6 +539,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-title">GUARDAR EN SERVIDOR</div>
+
             <label className="label">NOMBRE DEL PROGRAMA</label>
             <input
               className="input"
@@ -555,6 +549,7 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
               onKeyDown={(e) => e.key === "Enter" && handleSaveServer()}
               autoFocus
             />
+
             <div className="modal-actions">
               <button className="btn btn-primary" onClick={handleSaveServer}>
                 💾 GUARDAR
@@ -572,9 +567,10 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
           <div
             className="modal panel corner-tl corner-br"
             onClick={(e) => e.stopPropagation()}
-            style={{ width: 500 }}
+            style={{ width: "min(500px, 100%)" }}
           >
             <div className="modal-title">MIS PROGRAMAS</div>
+
             <div className="programs-list">
               {programs.length === 0 ? (
                 <p
