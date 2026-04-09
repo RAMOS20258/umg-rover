@@ -22,24 +22,27 @@ def semantic_to_rover_commands(semantic_result: Dict[str, Any]) -> List[Dict[str
 
 def _map_simple_instruction(name: str, value: int) -> List[Dict[str, Any]]:
     """
-    Mapea una instrucción UMG++ a uno o varios comandos del rover.
-    Ajusta duraciones según tu carrito real.
+    Mapea una instrucción UMG++ a comandos del rover.
+    Ahora avanzar_ctms y avanzar_mts usan DISTANCIA REAL en cm.
     """
     result = []
 
     if name == "avanzar_vlts":
+        # Se deja por tiempo porque "vueltas" depende de calibración mecánica
         direction = "forward" if value > 0 else "backward"
         result.append({"cmd": direction, "duration_ms": abs(value) * 1200})
         result.append({"cmd": "stop", "duration_ms": 300})
 
     elif name == "avanzar_ctms":
-        direction = "forward" if value > 0 else "backward"
-        result.append({"cmd": direction, "duration_ms": abs(value) * 100})
+        # Ahora usa distancia real en centímetros
+        direction = "forward_cm" if value > 0 else "backward_cm"
+        result.append({"cmd": direction, "duration_ms": abs(value)})
         result.append({"cmd": "stop", "duration_ms": 300})
 
     elif name == "avanzar_mts":
-        direction = "forward" if value > 0 else "backward"
-        result.append({"cmd": direction, "duration_ms": abs(value) * 1000})
+        # Convierte metros a centímetros
+        direction = "forward_cm" if value > 0 else "backward_cm"
+        result.append({"cmd": direction, "duration_ms": abs(value) * 100})
         result.append({"cmd": "stop", "duration_ms": 300})
 
     elif name == "girar":
@@ -69,16 +72,21 @@ def _map_simple_instruction(name: str, value: int) -> List[Dict[str, Any]]:
             result.append({"cmd": "stop", "duration_ms": 200})
 
     elif name == "circulo":
-        # Aproximación simple: avanzar + derecha repetido
-        steps = max(8, value // 10)
+        # Aproximación simple
+        steps = max(8, abs(value) // 10)
         for _ in range(steps):
             result.append({"cmd": "forward", "duration_ms": 300})
-            result.append({"cmd": "right", "duration_ms": 120})
+            if value >= 0:
+                result.append({"cmd": "right", "duration_ms": 120})
+            else:
+                result.append({"cmd": "left", "duration_ms": 120})
         result.append({"cmd": "stop", "duration_ms": 300})
 
     elif name == "cuadrado":
+        # Ahora cada lado usa centímetros reales
+        lado_cm = abs(value)
         for _ in range(4):
-            result.append({"cmd": "forward", "duration_ms": value * 100})
+            result.append({"cmd": "forward_cm", "duration_ms": lado_cm})
             result.append({"cmd": "stop", "duration_ms": 200})
             result.append({"cmd": "right", "duration_ms": 500})
             result.append({"cmd": "stop", "duration_ms": 200})
