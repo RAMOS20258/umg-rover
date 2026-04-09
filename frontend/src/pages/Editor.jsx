@@ -437,14 +437,14 @@ export default function Editor({ onLogout, onDashboard, onProfile }) {
                   handleCompile({ simulate: true, execute: false })
                 }
               >
-                ⚡ SIMULAR
+                ⚡ COMPILAR Y SIMULAR
               </button>
 
               <button
                 className="btn btn-sm btn-warning"
                 onClick={handleCompileAndExecuteRover}
               >
-                🤖 EJECUTAR EN CARRITO
+                🤖 COMPILAR Y EJECUTAR
               </button>
 
               <button
