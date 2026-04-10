@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   overflow: hidden;
   background: var(--bg-deep);
@@ -30,27 +31,32 @@
   z-index: 0;
 }
 
-/* Top bar */
+/* =========================
+   TOP BAR
+   ========================= */
 .editor-topbar {
   position: relative;
-  z-index: 1;
+  z-index: 1000;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 8px 16px;
   min-height: 56px;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: visible;
 }
 
 .editor-brand {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow: visible;
 }
 
 .brand-logo {
@@ -64,6 +70,7 @@
   color: var(--accent-cyan);
   font-size: 18px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -73,6 +80,7 @@
   letter-spacing: 2px;
   color: var(--accent-cyan);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-version {
@@ -84,6 +92,7 @@
   padding: 1px 5px;
   border-radius: 4px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-file {
@@ -97,15 +106,16 @@
   white-space: nowrap;
 }
 
+/* usuario */
 .editor-user {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  min-width: 0;
-  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 10px;
+  flex: 0 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow: visible;
 }
 
 .user-avatar {
@@ -153,9 +163,9 @@
 }
 
 .rover-indicator {
-  margin-right: 14px;
   text-align: right;
   min-width: 110px;
+  flex-shrink: 0;
 }
 
 .rover-label {
@@ -176,22 +186,50 @@
   color: #ff4d6d;
 }
 
-/* Body */
+/* =========================
+   TOP MENU / DROPDOWNS
+   ========================= */
+.menu-item,
+.topbar-item,
+.nav-item {
+  position: relative;
+  overflow: visible;
+}
+
+.menu-dropdown,
+.dropdown-menu,
+.topbar-dropdown,
+.submenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 3000;
+  min-width: 180px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  overflow: visible;
+}
+
+/* =========================
+   BODY
+   ========================= */
 .editor-body {
   position: relative;
   z-index: 1;
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
   overflow: hidden;
   gap: 0;
   min-height: 0;
+  min-width: 0;
 }
 
 /* Left pane - code editor */
 .editor-pane {
   display: flex;
   flex-direction: column;
-  width: 52%;
+  flex: 0 0 52%;
   min-width: 320px;
   border-right: 1px solid var(--border);
   overflow: hidden;
@@ -208,6 +246,8 @@
   flex-shrink: 0;
   min-height: 44px;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
 }
 
 .pane-title {
@@ -229,7 +269,7 @@
 .editor-right {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
   overflow: hidden;
   min-width: 0;
   min-height: 0;
@@ -245,6 +285,7 @@
   gap: 2px;
   flex-shrink: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
 }
 
@@ -278,10 +319,40 @@
 
 /* Right panel content */
 .right-panel {
-  flex: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   background: var(--bg-deep);
   min-height: 0;
+  min-width: 0;
+}
+
+.right-panel > * {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Simulador */
+.simulator-container,
+.simulator-wrapper,
+.simulator-view,
+.simulator-panel {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.right-panel canvas,
+.simulator-container canvas,
+.simulator-wrapper canvas,
+.simulator-view canvas,
+.simulator-panel canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* Manual controls */
@@ -308,7 +379,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 4000;
   backdrop-filter: blur(4px);
   padding: 16px;
 }
@@ -405,16 +476,12 @@
 }
 
 /* =========================
-   TABLET
+   LARGE TABLET
    ========================= */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .editor-pane {
-    width: 50%;
+    flex-basis: 50%;
     min-width: 280px;
-  }
-
-  .pane-actions .btn {
-    flex: 1 1 auto;
   }
 
   .user-nick {
@@ -423,7 +490,29 @@
 
   .rover-indicator {
     min-width: 100px;
-    margin-right: 8px;
+  }
+}
+
+/* =========================
+   TABLET
+   ========================= */
+@media (max-width: 992px) {
+  .editor-topbar {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .brand-name {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+
+  .brand-file {
+    max-width: 120px;
+  }
+
+  .pane-actions .btn {
+    flex: 1 1 auto;
   }
 }
 
@@ -433,38 +522,52 @@
 @media (max-width: 768px) {
   .editor-root {
     height: 100dvh;
+    overflow: hidden;
   }
 
   .editor-topbar {
     align-items: flex-start;
+    justify-content: flex-start;
     gap: 10px;
     padding: 10px 12px;
+    flex-wrap: wrap;
+    overflow: visible;
   }
 
   .editor-brand {
     width: 100%;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
   }
 
   .brand-name {
     font-size: 12px;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
   }
 
   .brand-version {
     font-size: 9px;
   }
 
-  .editor-user {
+  .brand-file {
     width: 100%;
     margin-left: 0;
+    margin-top: 2px;
+  }
+
+  .editor-user {
+    width: 100%;
+    flex: 1 1 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .rover-indicator {
     order: 1;
-    margin-right: 0;
     min-width: auto;
     text-align: left;
+    width: 100%;
   }
 
   .user-avatar {
@@ -474,31 +577,42 @@
   .user-info {
     order: 3;
     flex: 1;
+    min-width: 0;
   }
 
   .editor-user > .btn {
     order: 4;
   }
 
+  /* El body pasa a columna */
   .editor-body {
     flex-direction: column;
+    overflow: hidden;
   }
 
+  /* Editor arriba */
   .editor-pane {
     width: 100%;
     min-width: 0;
-    height: 55%;
+    flex: 0 0 46%;
     border-right: none;
     border-bottom: 1px solid var(--border);
   }
 
+  /* Simulador abajo y visible */
   .editor-right {
     width: 100%;
-    height: 45%;
+    flex: 1 1 54%;
+    min-height: 300px;
+  }
+
+  .right-panel {
+    min-height: 0;
   }
 
   .pane-header {
     align-items: flex-start;
+    padding: 8px 10px;
   }
 
   .pane-title {
@@ -509,11 +623,12 @@
     margin-left: 0;
     width: 100%;
     justify-content: stretch;
+    gap: 6px;
   }
 
   .pane-actions .btn {
-    flex: 1 1 calc(50% - 8px);
-    min-width: 140px;
+    flex: 1 1 calc(50% - 6px);
+    min-width: 120px;
   }
 
   .manual-controls {
@@ -526,8 +641,12 @@
     min-width: 0;
   }
 
+  .tab-bar {
+    padding: 0 6px;
+  }
+
   .tab {
-    padding: 10px 12px;
+    padding: 10px 10px;
     font-size: 9px;
   }
 
@@ -543,6 +662,18 @@
   .program-date {
     font-size: 11px;
   }
+
+  /* Menús desplegables en móvil */
+  .menu-dropdown,
+  .dropdown-menu,
+  .topbar-dropdown,
+  .submenu {
+    position: absolute;
+    left: 0;
+    right: auto;
+    min-width: 160px;
+    max-width: calc(100vw - 24px);
+  }
 }
 
 /* =========================
@@ -551,6 +682,7 @@
 @media (max-width: 480px) {
   .editor-topbar {
     padding: 8px 10px;
+    gap: 8px;
   }
 
   .brand-logo {
@@ -564,10 +696,15 @@
 
   .brand-name {
     font-size: 11px;
+    letter-spacing: 1px;
   }
 
   .brand-version {
     padding: 1px 4px;
+  }
+
+  .brand-file {
+    font-size: 10px;
   }
 
   .user-info {
@@ -582,12 +719,22 @@
     font-size: 12px;
   }
 
+  .editor-pane {
+    flex: 0 0 44%;
+  }
+
+  .editor-right {
+    flex: 1 1 56%;
+    min-height: 280px;
+  }
+
   .pane-header {
     padding: 8px 10px;
   }
 
   .pane-actions .btn {
     flex: 1 1 100%;
+    min-width: 0;
   }
 
   .manual-controls .btn {

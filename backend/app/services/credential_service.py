@@ -108,9 +108,11 @@ def draw_signature_block(
     signer_role: str,
     signed_at: str,
     signature_reference: str,
+    validation_code: str,
+    status: str = "VÁLIDO",
     signature_image_bytes: Optional[bytes] = None,
 ):
-    # Fondo del bloque
+    # Fondo
     c.setFillColorRGB(0.01, 0.12, 0.28)
     c.roundRect(x, y, w, h, 2.3 * mm, fill=1, stroke=0)
 
@@ -128,22 +130,22 @@ def draw_signature_block(
     c.setFillColorRGB(1, 1, 1)
     draw_center_fit_text(
         c,
-        "FIRMA ELECTRÓNICA AVANZADA",
+        "FIRMA DIGITAL INTERNA",
         x + w / 2,
-        y + h - 4.2 * mm,
+        y + h - 4.0 * mm,
         w - 4 * mm,
         "Helvetica-Bold",
         5,
         4,
     )
 
-    # Imagen de firma visible
+    # Firma visible opcional
     if signature_image_bytes:
         try:
             img_x = x + 2.5 * mm
-            img_y = y + 7.5 * mm
+            img_y = y + h - 10.2 * mm
             img_w = w - 5 * mm
-            img_h = 5.5 * mm
+            img_h = 3.8 * mm
 
             c.drawImage(
                 ImageReader(io.BytesIO(signature_image_bytes)),
@@ -153,48 +155,38 @@ def draw_signature_block(
                 height=img_h,
                 mask="auto",
                 preserveAspectRatio=True,
-                anchor='c',
+                anchor="c",
             )
         except Exception:
             pass
 
-    # Datos del firmante
     c.setFillColorRGB(0.88, 0.96, 1.0)
 
-    draw_center_fit_text(
-        c,
-        signer_name,
-        x + w / 2,
-        y + 5.0 * mm,
-        w - 4 * mm,
-        "Helvetica-Bold",
-        4,
-        3,
-    )
+    text_x = x + 2.3 * mm
+    line_y = y + h - 12.6 * mm
+    line_gap = 2.25 * mm
 
-    draw_center_fit_text(
-        c,
-        signer_role,
-        x + w / 2,
-        y + 3.0 * mm,
-        w - 4 * mm,
-        "Helvetica",
-        3,
-        3,
-    )
+    lines = [
+        f"Emitido por: {signer_name}",
+        f"Rol: {signer_role}",
+        f"Fecha: {signed_at}",
+        f"Código: {validation_code}",
+        f"Ref: {signature_reference}",
+        f"Estado: {status}",
+    ]
 
-    # Pie técnico muy pequeño
-    technical = f"{signed_at} | Ref: {signature_reference}"
-    draw_center_fit_text(
-        c,
-        technical,
-        x + w / 2,
-        y + 1.0 * mm,
-        w - 4 * mm,
-        "Helvetica",
-        2,
-        2,
-    )
+    for line in lines:
+        draw_fit_text(
+            c,
+            line,
+            text_x,
+            line_y,
+            w - 4.6 * mm,
+            "Helvetica",
+            3,
+            2,
+        )
+        line_y -= line_gap
 
 
 def generate_credential_pdf(
@@ -205,18 +197,26 @@ def generate_credential_pdf(
     avatar_base64: Optional[str],
     qr_login_token: Optional[str] = None,
     signature_image_base64: Optional[str] = None,
-    signer_name: str = "AUTORIDAD EMISORA",
-    signer_role: str = "UNIVERSIDAD MARIANO GÁLVEZ",
+    signer_name: str = "UMG Rover",
+    signer_role: str = "Autoridad Emisora",
     signature_reference: Optional[str] = None,
     signed_at: Optional[str] = None,
+    validation_code: Optional[str] = None,
+    status: str = "VÁLIDO",
 ) -> Path:
     pdf_path = CREDENTIALS_DIR / f"credencial_{user_id}.pdf"
     avatar_bytes = decode_base64_image(avatar_base64)
     signature_image_bytes = decode_base64_image(signature_image_base64)
 
-# 🔥 REEMPLAZA SOLO ESTA PARTE
+    code = validation_code or user_id.replace("-", "").upper()[:16]
 
-    qr_target = f"{PUBLIC_API_BASE}/validar-credencial?code={user_id.replace('-', '').upper()[:16]}"
+    if not signed_at:
+        signed_at = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+    if not signature_reference:
+        signature_reference = user_id.replace("-", "").upper()[:12]
+
+    qr_target = f"{PUBLIC_API_BASE}/validar-credencial?code={code}"
     qr_bytes = create_qr_image(qr_target)
 
     c = canvas.Canvas(str(pdf_path), pagesize=A4)
@@ -281,32 +281,77 @@ def generate_credential_pdf(
     data_x = card_x + 83.9 * mm
     data_width = 53 * mm
 
-    draw_fit_text(c, nickname.upper(), data_x, card_y + 81 * mm, data_width, "Helvetica-Bold", 10, 8)
-    draw_fit_text(c, email, data_x, card_y + 72.7 * mm, data_width, "Helvetica-Bold", 10, 8)
-    draw_fit_text(c, phone, data_x, card_y + 62.3 * mm, data_width, "Helvetica-Bold", 10, 8)
-
-    code = user_id.replace("-", "").upper()[:16]
-    draw_fit_text(c, code, data_x, card_y + 53 * mm, data_width, "Helvetica-Bold", 10, 8)
+    draw_fit_text(
+        c,
+        nickname.upper(),
+        data_x,
+        card_y + 81 * mm,
+        data_width,
+        "Helvetica-Bold",
+        10,
+        8,
+    )
+    draw_fit_text(
+        c,
+        email,
+        data_x,
+        card_y + 72.7 * mm,
+        data_width,
+        "Helvetica-Bold",
+        10,
+        8,
+    )
+    draw_fit_text(
+        c,
+        phone,
+        data_x,
+        card_y + 62.3 * mm,
+        data_width,
+        "Helvetica-Bold",
+        10,
+        8,
+    )
+    draw_fit_text(
+        c,
+        code,
+        data_x,
+        card_y + 53 * mm,
+        data_width,
+        "Helvetica-Bold",
+        10,
+        8,
+    )
 
     # FECHAS
     issue_date = datetime.now().strftime("%d/%m/%Y")
     valid_date = issue_date
 
-    draw_center_fit_text(c, issue_date, card_x + 75.0 * mm, card_y + 26.5 * mm, 24 * mm, "Helvetica-Bold", 10, 8)
-    draw_center_fit_text(c, valid_date, card_x + 110.0 * mm, card_y + 26.5 * mm, 24 * mm, "Helvetica-Bold", 10, 8)
+    draw_center_fit_text(
+        c,
+        issue_date,
+        card_x + 75.0 * mm,
+        card_y + 26.5 * mm,
+        24 * mm,
+        "Helvetica-Bold",
+        10,
+        8,
+    )
+    draw_center_fit_text(
+        c,
+        valid_date,
+        card_x + 110.0 * mm,
+        card_y + 26.5 * mm,
+        24 * mm,
+        "Helvetica-Bold",
+        10,
+        8,
+    )
 
-    # Datos de firma visibles
-    if not signed_at:
-        signed_at = datetime.now().strftime("%d/%m/%Y %H:%M")
-
-    if not signature_reference:
-        signature_reference = user_id.replace("-", "").upper()[:12]
-
-    # FIRMA VISIBLE
-    sig_x = card_x + 138.5 * mm
-    sig_y = card_y + 10.5 * mm
-    sig_w = 37.0 * mm
-    sig_h = 19.5 * mm
+    # FIRMA DIGITAL INTERNA
+    sig_x = card_x + 132.5 * mm
+    sig_y = card_y + 5.8 * mm
+    sig_w = 43.0 * mm
+    sig_h = 25.0 * mm
 
     draw_signature_block(
         c=c,
@@ -318,16 +363,26 @@ def generate_credential_pdf(
         signer_role=signer_role,
         signed_at=signed_at,
         signature_reference=signature_reference,
+        validation_code=code,
+        status=status,
         signature_image_bytes=signature_image_bytes,
     )
 
-    # QR LOGIN / DESCARGA
+    # QR DE VALIDACIÓN
     qr_x = card_x + 13.0 * mm
     qr_y = card_y + 8.5 * mm
     qr_size = 20 * mm
 
     c.setFillColorRGB(1, 1, 1)
-    c.roundRect(qr_x - 1 * mm, qr_y - 1 * mm, qr_size + 2 * mm, qr_size + 2 * mm, 2 * mm, fill=1, stroke=0)
+    c.roundRect(
+        qr_x - 1 * mm,
+        qr_y - 1 * mm,
+        qr_size + 2 * mm,
+        qr_size + 2 * mm,
+        2 * mm,
+        fill=1,
+        stroke=0,
+    )
 
     c.drawImage(
         ImageReader(io.BytesIO(qr_bytes)),

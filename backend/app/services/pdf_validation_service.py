@@ -36,17 +36,15 @@ def _execute_fetchone(db, sql: str, params: tuple = ()) -> Optional[Dict[str, An
     created_cursor = False
 
     try:
-        # Si 'db' ya es un cursor
+        # Si db ya es cursor
         if hasattr(db, "fetchone") and hasattr(db, "execute"):
             cursor = db
-        # Si 'db' es una conexión, crear cursor
+
+        # Si db es conexión
         elif hasattr(db, "cursor"):
-            try:
-                cursor = db.cursor()
-                created_cursor = True
-            except TypeError:
-                cursor = db.cursor
-                created_cursor = False
+            cursor = db.cursor()
+            created_cursor = True
+
         else:
             raise ValueError("El objeto db no es una conexión ni cursor válido")
 
@@ -93,7 +91,7 @@ def get_credential_by_code(db, codigo: str) -> Optional[Dict[str, Any]]:
 # ===============================
 # 🔎 BUSCAR POR ID
 # ===============================
-def get_credential_by_id(db, credencial_id: int) -> Optional[Dict[str, Any]]:
+def get_credential_by_id(db, credencial_id: str) -> Optional[Dict[str, Any]]:
     sql = """
         SELECT
             cp.id,
@@ -150,7 +148,7 @@ def validate_record_without_pdf(record: Dict[str, Any]) -> Dict[str, Any]:
         "codigo_validacion": codigo,
         "nombre_conductor": build_full_name(record),
 
-        # Simulación de firma
+        # Firma interna del sistema
         "firmante": "UMG Rover - Autoridad Emisora",
         "fecha_firma": format_date(record.get("fecha_generacion")),
 
