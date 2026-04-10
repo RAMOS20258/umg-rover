@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.routers import admin, auth, compiler, credentials, evidences, rover
+from app.routers import pdf_validation 
 
 app = FastAPI(title="UMG Basic Rover 2.0 API", version="1.2.0")
 
@@ -27,6 +29,8 @@ app.include_router(compiler.router)
 app.include_router(admin.router)
 app.include_router(evidences.router)
 app.include_router(rover.router)
+
+app.include_router(pdf_validation.router)  # 👈 NUEVO
 
 @app.get("/")
 def root():

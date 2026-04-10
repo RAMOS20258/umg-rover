@@ -214,11 +214,9 @@ def generate_credential_pdf(
     avatar_bytes = decode_base64_image(avatar_base64)
     signature_image_bytes = decode_base64_image(signature_image_base64)
 
-    qr_target = (
-        f"{PUBLIC_API_BASE}/auth/login-qr/{qr_login_token}"
-        if qr_login_token
-        else f"{PUBLIC_API_BASE}/credenciales/{user_id}/download"
-    )
+# 🔥 REEMPLAZA SOLO ESTA PARTE
+
+    qr_target = f"{PUBLIC_API_BASE}/validar-credencial?code={user_id.replace('-', '').upper()[:16]}"
     qr_bytes = create_qr_image(qr_target)
 
     c = canvas.Canvas(str(pdf_path), pagesize=A4)
