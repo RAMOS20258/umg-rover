@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   overflow: hidden;
   background: var(--bg-deep);
@@ -38,6 +39,7 @@
   z-index: 1000;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 8px 16px;
   min-height: 56px;
@@ -52,8 +54,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
-  min-width: max-content;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: visible;
 }
 
 .brand-logo {
@@ -67,6 +70,7 @@
   color: var(--accent-cyan);
   font-size: 18px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -76,6 +80,7 @@
   letter-spacing: 2px;
   color: var(--accent-cyan);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-version {
@@ -87,6 +92,7 @@
   padding: 1px 5px;
   border-radius: 4px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-file {
@@ -100,33 +106,15 @@
   white-space: nowrap;
 }
 
-/* Menú superior interno */
-.editor-topbar .menubar,
-.editor-topbar .top-menu,
-.editor-topbar .editor-menu,
-.editor-topbar .nav-links,
-.editor-topbar .menu-links,
-.editor-topbar .nav-menu {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: nowrap;
-  min-width: max-content;
-  overflow: visible;
-  position: relative;
-  z-index: 1001;
-}
-
 /* usuario */
 .editor-user {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  min-width: max-content;
-  flex-wrap: nowrap;
   justify-content: flex-end;
+  gap: 10px;
+  flex: 0 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
   overflow: visible;
 }
 
@@ -175,7 +163,6 @@
 }
 
 .rover-indicator {
-  margin-right: 14px;
   text-align: right;
   min-width: 110px;
   flex-shrink: 0;
@@ -199,14 +186,15 @@
   color: #ff4d6d;
 }
 
-/* Soporte extra de dropdown si hay otros menús */
+/* =========================
+   TOP MENU / DROPDOWNS
+   ========================= */
 .menu-item,
 .topbar-item,
 .nav-item,
 .dropdown-parent {
   position: relative;
   overflow: visible;
-  flex-shrink: 0;
 }
 
 .menu-dropdown,
@@ -218,6 +206,7 @@
   left: 0;
   z-index: 5000;
   min-width: 180px;
+  max-width: min(280px, calc(100vw - 24px));
   background: var(--bg-panel);
   border: 1px solid var(--border);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
@@ -232,18 +221,20 @@
   position: relative;
   z-index: 1;
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
   overflow: hidden;
   gap: 0;
   min-height: 0;
   min-width: 0;
 }
 
-/* Left pane - code editor */
+/* =========================
+   LEFT PANE
+   ========================= */
 .editor-pane {
   display: flex;
   flex-direction: column;
-  width: 52%;
+  flex: 0 0 52%;
   min-width: 320px;
   border-right: 1px solid var(--border);
   overflow: hidden;
@@ -279,7 +270,7 @@
   justify-content: flex-end;
 }
 
-/* Área editable del editor */
+/* Área editable */
 .editor-pane > *:not(.pane-header):not(.manual-controls) {
   flex: 1 1 auto;
   min-height: 0;
@@ -294,14 +285,19 @@
 .editor-pane .cm-scroller,
 .editor-pane textarea,
 .editor-pane pre {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   pointer-events: auto !important;
 }
 
-/* Right pane */
+/* =========================
+   RIGHT PANE
+   ========================= */
 .editor-right {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
   overflow: hidden;
   min-width: 0;
   min-height: 0;
@@ -349,43 +345,93 @@
   border-bottom-color: var(--accent-cyan);
 }
 
-/* Right panel content */
+/* Contenido panel derecho */
 .right-panel {
-  flex: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   background: var(--bg-deep);
   min-height: 0;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  height: 100%;
 }
 
 .right-panel > * {
+  flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
 }
 
-/* Simulador */
+/* =========================
+   SIMULADOR
+   ========================= */
 .simulator-container,
 .simulator-wrapper,
 .simulator-view,
-.simulator-panel {
+.simulator-panel,
+.simulation-panel,
+.simulation-view,
+.simulation-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   width: 100%;
+  height: 100%;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .right-panel canvas,
 .simulator-container canvas,
 .simulator-wrapper canvas,
 .simulator-view canvas,
-.simulator-panel canvas {
+.simulator-panel canvas,
+.simulation-panel canvas,
+.simulation-view canvas,
+.simulation-container canvas {
   display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0;
+  min-height: 0;
   max-width: 100%;
   max-height: 100%;
+  object-fit: contain;
 }
 
-/* Manual controls */
+/* =========================
+   TOKENS / CONSOLA
+   ========================= */
+.console-panel,
+.console-container,
+.tokens-panel,
+.tokens-container,
+.output-panel,
+.output-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.console-body,
+.console-content,
+.tokens-body,
+.tokens-content,
+.output-body,
+.output-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* =========================
+   MANUAL CONTROLS
+   ========================= */
 .manual-controls {
   display: flex;
   gap: 8px;
@@ -401,7 +447,9 @@
   min-width: 110px;
 }
 
-/* Modal */
+/* =========================
+   MODAL
+   ========================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -442,7 +490,9 @@
   flex-wrap: wrap;
 }
 
-/* Programs list */
+/* =========================
+   PROGRAMS LIST
+   ========================= */
 .programs-list {
   max-height: 300px;
   overflow-y: auto;
@@ -485,7 +535,7 @@
   white-space: nowrap;
 }
 
-/* Generic responsive helpers */
+/* Helpers */
 .editor-scroll-x {
   overflow-x: auto;
 }
@@ -506,16 +556,12 @@
 }
 
 /* =========================
-   TABLET
+   LARGE TABLET
    ========================= */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .editor-pane {
-    width: 50%;
+    flex-basis: 50%;
     min-width: 280px;
-  }
-
-  .pane-actions .btn {
-    flex: 1 1 auto;
   }
 
   .user-nick {
@@ -524,7 +570,29 @@
 
   .rover-indicator {
     min-width: 100px;
-    margin-right: 8px;
+  }
+}
+
+/* =========================
+   TABLET
+   ========================= */
+@media (max-width: 992px) {
+  .editor-topbar {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .brand-name {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+
+  .brand-file {
+    max-width: 120px;
+  }
+
+  .pane-actions .btn {
+    flex: 1 1 auto;
   }
 }
 
@@ -533,85 +601,35 @@
    ========================= */
 @media (max-width: 768px) {
   .editor-root {
-    height: auto;
-    min-height: 100dvh;
-    overflow-x: hidden;
-    overflow-y: visible;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   .scanline {
     display: none;
   }
 
-  /* TOPBAR */
   .editor-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 2000;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    padding: 8px 10px;
-    min-height: auto;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    background: var(--bg-panel);
-  }
-
-  .editor-topbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .editor-topbar > * {
-    flex-shrink: 0;
-  }
-
-  .editor-topbar .menubar,
-  .editor-topbar .top-menu,
-  .editor-topbar .editor-menu,
-  .editor-topbar .nav-links,
-  .editor-topbar .menu-links,
-  .editor-topbar .nav-menu {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: visible;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    min-width: max-content;
     position: relative;
-    z-index: 1001;
-  }
-
-  .editor-topbar .menubar::-webkit-scrollbar,
-  .editor-topbar .top-menu::-webkit-scrollbar,
-  .editor-topbar .editor-menu::-webkit-scrollbar,
-  .editor-topbar .nav-links::-webkit-scrollbar,
-  .editor-topbar .menu-links::-webkit-scrollbar,
-  .editor-topbar .nav-menu::-webkit-scrollbar {
-    display: none;
-  }
-
-  .editor-topbar .menubar > *,
-  .editor-topbar .top-menu > *,
-  .editor-topbar .editor-menu > *,
-  .editor-topbar .nav-links > *,
-  .editor-topbar .menu-links > *,
-  .editor-topbar .nav-menu > * {
-    flex-shrink: 0;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    min-height: auto;
+    flex-wrap: wrap;
+    overflow: visible;
   }
 
   .editor-brand {
-    min-width: max-content;
+    width: 100%;
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: wrap;
   }
 
   .brand-logo {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
 
   .brand-icon {
@@ -619,114 +637,120 @@
   }
 
   .brand-name {
-    font-size: 11px;
-    letter-spacing: 1px;
+    font-size: 10px;
+    letter-spacing: 0.8px;
   }
 
   .brand-version {
-    font-size: 8px;
+    font-size: 7px;
     padding: 1px 4px;
   }
 
   .brand-file {
-    display: none;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 2px;
+    font-size: 10px;
   }
 
   .editor-user {
-    margin-left: 0;
-    min-width: max-content;
-    gap: 8px;
-    justify-content: flex-start;
+    width: 100%;
+    flex: 1 1 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .rover-indicator {
-    margin-right: 0;
-    min-width: auto;
+    order: 1;
+    min-width: 0;
     text-align: left;
+    width: 100%;
   }
 
   .user-avatar {
-    width: 24px;
-    height: 24px;
+    order: 2;
+    width: 22px;
+    height: 22px;
   }
 
   .user-info {
-    display: none;
+    order: 3;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-nick {
+    font-size: 10px;
+    max-width: 100px;
+  }
+
+  .user-role {
+    font-size: 8px;
+  }
+
+  .editor-user > .btn {
+    order: 4;
   }
 
   .rover-label {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .rover-state {
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  /* DROPDOWNS EN MÓVIL */
-  .menu-dropdown,
-  .dropdown-menu,
-  .topbar-dropdown,
-  .submenu {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: auto;
-    min-width: 180px;
-    max-width: calc(100vw - 16px);
-    z-index: 5000;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
-  /* BODY */
+  /* Body general */
   .editor-body {
-    display: flex;
     flex-direction: column;
-    overflow: visible;
+    height: calc(100dvh - 92px);
+    overflow: hidden;
     min-height: 0;
   }
 
-  /* EDITOR */
+  /* Editor arriba: darle más espacio */
   .editor-pane {
     width: 100%;
     min-width: 0;
-    min-height: 260px;
-    height: auto;
-    flex: none;
+    min-height: 0;
+    flex: 0 0 48%;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    overflow: hidden;
   }
 
   .pane-header {
     align-items: flex-start;
-    padding: 8px 10px;
+    padding: 6px 8px;
     gap: 6px;
+    flex-shrink: 0;
   }
 
   .pane-title {
     width: 100%;
     font-size: 9px;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
   }
 
   .pane-actions {
     margin-left: 0;
     width: 100%;
     justify-content: stretch;
-    gap: 6px;
+    gap: 4px;
   }
 
   .pane-actions .btn {
     flex: 1 1 100%;
     min-width: 0;
-    font-size: 10px;
-    padding: 6px 8px;
+    font-size: 9px;
+    padding: 5px 6px;
   }
 
-  /* Área real del editor en móvil */
+  /* Área real del editor */
   .editor-pane > *:not(.pane-header):not(.manual-controls) {
     flex: 1 1 auto;
-    min-height: 180px;
+    min-height: 140px;
   }
 
   .editor-pane .code-editor,
@@ -740,34 +764,39 @@
   .editor-pane pre {
     width: 100% !important;
     height: 100% !important;
-    min-height: 180px !important;
-    pointer-events: auto !important;
+    min-height: 140px !important;
   }
 
-  /* CONTROLES MANUALES */
+  /* Si existe contenedor interno del Monaco */
+  .monaco-editor .overflow-guard {
+    min-height: 140px !important;
+  }
+
   .manual-controls {
-    padding: 8px;
-    gap: 6px;
+    padding: 6px 8px;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .manual-controls .btn {
-    flex: 1 1 calc(50% - 6px);
+    flex: 1 1 calc(50% - 4px);
     min-width: 0;
-    font-size: 10px;
-    padding: 6px 8px;
+    font-size: 9px;
+    padding: 5px 6px;
   }
 
-  /* PANEL DERECHO */
+  /* Panel derecho: un poco más pequeño que antes */
   .editor-right {
     width: 100%;
     min-width: 0;
-    min-height: 380px;
-    flex: none;
-    overflow: visible;
+    min-height: 0;
+    flex: 1 1 52%;
+    overflow: hidden;
   }
 
   .tab-bar {
     padding: 0 6px;
+    flex-shrink: 0;
   }
 
   .tab {
@@ -776,21 +805,27 @@
   }
 
   .right-panel {
-    min-height: 320px;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
     overflow: hidden;
   }
 
   .right-panel > * {
     flex: 1 1 auto;
     min-height: 0;
-    min-width: 0;
   }
 
+  /* Simulador más controlado */
   .simulator-container,
   .simulator-wrapper,
   .simulator-view,
-  .simulator-panel {
-    min-height: 300px;
+  .simulator-panel,
+  .simulation-panel,
+  .simulation-view,
+  .simulation-container {
+    flex: 1 1 auto;
+    min-height: 170px;
     height: 100%;
   }
 
@@ -798,10 +833,13 @@
   .simulator-container canvas,
   .simulator-wrapper canvas,
   .simulator-view canvas,
-  .simulator-panel canvas {
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
+  .simulator-panel canvas,
+  .simulation-panel canvas,
+  .simulation-view canvas,
+  .simulation-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 170px !important;
   }
 
   .modal {
@@ -816,6 +854,16 @@
   .program-date {
     font-size: 11px;
   }
+
+  .menu-dropdown,
+  .dropdown-menu,
+  .topbar-dropdown,
+  .submenu {
+    left: 0;
+    right: auto;
+    min-width: 160px;
+    max-width: calc(100vw - 16px);
+  }
 }
 
 /* =========================
@@ -824,12 +872,12 @@
 @media (max-width: 480px) {
   .editor-topbar {
     padding: 6px 8px;
-    gap: 8px;
+    gap: 6px;
   }
 
   .brand-logo {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .brand-icon {
@@ -837,49 +885,56 @@
   }
 
   .brand-name {
-    font-size: 10px;
-    letter-spacing: 0.8px;
+    font-size: 9px;
+    letter-spacing: 0.6px;
   }
 
   .brand-version {
     font-size: 7px;
   }
 
-  .user-avatar {
-    width: 22px;
-    height: 22px;
+  .brand-file {
+    font-size: 9px;
+  }
+
+  .user-info {
+    display: none;
   }
 
   .rover-label {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .rover-state {
-    font-size: 11px;
+    font-size: 10px;
+  }
+
+  .editor-body {
+    height: calc(100dvh - 86px);
   }
 
   .editor-pane {
-    min-height: 220px;
+    flex: 0 0 50%;
   }
 
   .editor-right {
-    min-height: 340px;
-  }
-
-  .right-panel {
-    min-height: 280px;
+    flex: 1 1 50%;
   }
 
   .pane-header {
-    padding: 8px 8px;
+    padding: 6px 8px;
   }
 
   .pane-actions .btn {
     flex: 1 1 100%;
+    font-size: 8px;
+    padding: 4px 6px;
   }
 
   .manual-controls .btn {
     flex: 1 1 100%;
+    font-size: 8px;
+    padding: 4px 6px;
   }
 
   .tab-bar {
@@ -887,8 +942,46 @@
   }
 
   .tab {
-    padding: 8px 8px;
+    padding: 7px 8px;
     font-size: 8px;
+  }
+
+  .editor-pane > *:not(.pane-header):not(.manual-controls) {
+    min-height: 120px;
+  }
+
+  .editor-pane .code-editor,
+  .editor-pane .editor-content,
+  .editor-pane .monaco-editor,
+  .editor-pane .overflow-guard,
+  .editor-pane .monaco-scrollable-element,
+  .editor-pane .cm-editor,
+  .editor-pane .cm-scroller,
+  .editor-pane textarea,
+  .editor-pane pre,
+  .monaco-editor .overflow-guard {
+    min-height: 120px !important;
+  }
+
+  .simulator-container,
+  .simulator-wrapper,
+  .simulator-view,
+  .simulator-panel,
+  .simulation-panel,
+  .simulation-view,
+  .simulation-container {
+    min-height: 150px;
+  }
+
+  .right-panel canvas,
+  .simulator-container canvas,
+  .simulator-wrapper canvas,
+  .simulator-view canvas,
+  .simulator-panel canvas,
+  .simulation-panel canvas,
+  .simulation-view canvas,
+  .simulation-container canvas {
+    min-height: 150px !important;
   }
 
   .modal-actions {
