@@ -39,24 +39,21 @@
   z-index: 1000;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 16px;
-  min-height: 56px;
+  gap: 8px;
+  padding: 6px 10px;
+  min-height: 52px;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  flex-wrap: nowrap;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .editor-brand {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
-  overflow: visible;
 }
 
 .brand-logo {
@@ -77,7 +74,7 @@
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1.4px;
   color: var(--accent-cyan);
   white-space: nowrap;
   flex-shrink: 0;
@@ -85,7 +82,7 @@
 
 .brand-version {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-dim);
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -97,7 +94,7 @@
 
 .brand-file {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-secondary);
   margin-left: 4px;
   min-width: 0;
@@ -111,16 +108,15 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
-  flex: 0 1 auto;
+  gap: 6px;
+  flex: 0 0 auto;
   min-width: 0;
-  flex-wrap: nowrap;
-  overflow: visible;
+  margin-left: auto;
 }
 
 .user-avatar {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid var(--accent-cyan);
@@ -128,7 +124,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
@@ -141,41 +137,42 @@
 .user-info {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.1;
   min-width: 0;
 }
 
 .user-nick {
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-width: 90px;
 }
 
 .user-role {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8px;
   color: var(--accent-cyan);
   white-space: nowrap;
 }
 
 .rover-indicator {
   text-align: right;
-  min-width: 110px;
+  min-width: 84px;
   flex-shrink: 0;
 }
 
 .rover-label {
-  font-size: 12px;
+  font-size: 10px;
   opacity: 0.8;
 }
 
 .rover-state {
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 700;
+  line-height: 1.1;
 }
 
 .rover-state.connected {
@@ -186,9 +183,7 @@
   color: #ff4d6d;
 }
 
-/* =========================
-   TOP MENU / DROPDOWNS
-   ========================= */
+/* Menús desplegables */
 .menu-item,
 .topbar-item,
 .nav-item,
@@ -229,7 +224,7 @@
 }
 
 /* =========================
-   LEFT PANE
+   LEFT PANE - CODE
    ========================= */
 .editor-pane {
   display: flex;
@@ -245,11 +240,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  min-height: 44px;
+  min-height: 38px;
   flex-wrap: wrap;
   position: relative;
   z-index: 2;
@@ -257,20 +252,19 @@
 
 .pane-title {
   font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
   color: var(--text-secondary);
 }
 
 .pane-actions {
   margin-left: auto;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 
-/* Área editable */
 .editor-pane > *:not(.pane-header):not(.manual-controls) {
   flex: 1 1 auto;
   min-height: 0;
@@ -303,14 +297,13 @@
   min-height: 0;
 }
 
-/* Tab bar */
 .tab-bar {
   display: flex;
   align-items: center;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
-  padding: 0 8px;
-  gap: 2px;
+  padding: 0 6px;
+  gap: 4px;
   flex-shrink: 0;
   overflow-x: auto;
   overflow-y: hidden;
@@ -318,14 +311,14 @@
 }
 
 .tab-bar::-webkit-scrollbar {
-  height: 6px;
+  height: 4px;
 }
 
 .tab {
   font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 10px 14px;
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  padding: 8px 10px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -345,7 +338,6 @@
   border-bottom-color: var(--accent-cyan);
 }
 
-/* Contenido panel derecho */
 .right-panel {
   flex: 1 1 auto;
   display: flex;
@@ -364,7 +356,7 @@
 }
 
 /* =========================
-   SIMULADOR
+   SIMULATOR
    ========================= */
 .simulator-container,
 .simulator-wrapper,
@@ -381,6 +373,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  position: relative;
 }
 
 .right-panel canvas,
@@ -401,9 +394,22 @@
   object-fit: contain;
 }
 
-/* =========================
-   TOKENS / CONSOLA
-   ========================= */
+/* Zoom / controles del simulador: escritorio */
+.zoom-controls,
+.simulator-zoom,
+.simulation-zoom,
+.sim-controls,
+.simulator-controls,
+.simulation-controls,
+.canvas-controls,
+.overlay-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Consola / Tokens */
 .console-panel,
 .console-container,
 .tokens-panel,
@@ -429,14 +435,12 @@
   overflow: auto;
 }
 
-/* =========================
-   MANUAL CONTROLS
-   ========================= */
+/* Manual controls */
 .manual-controls {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  padding: 10px 12px;
+  padding: 8px 10px;
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
@@ -447,9 +451,7 @@
   min-width: 110px;
 }
 
-/* =========================
-   MODAL
-   ========================= */
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -490,9 +492,6 @@
   flex-wrap: wrap;
 }
 
-/* =========================
-   PROGRAMS LIST
-   ========================= */
 .programs-list {
   max-height: 300px;
   overflow-y: auto;
@@ -535,7 +534,6 @@
   white-space: nowrap;
 }
 
-/* Helpers */
 .editor-scroll-x {
   overflow-x: auto;
 }
@@ -556,43 +554,20 @@
 }
 
 /* =========================
-   LARGE TABLET
+   TABLET
    ========================= */
-@media (max-width: 1200px) {
+@media (max-width: 992px) {
   .editor-pane {
     flex-basis: 50%;
     min-width: 280px;
   }
 
   .user-nick {
-    max-width: 90px;
+    max-width: 70px;
   }
 
   .rover-indicator {
-    min-width: 100px;
-  }
-}
-
-/* =========================
-   TABLET
-   ========================= */
-@media (max-width: 992px) {
-  .editor-topbar {
-    gap: 10px;
-    padding: 8px 12px;
-  }
-
-  .brand-name {
-    font-size: 12px;
-    letter-spacing: 1.5px;
-  }
-
-  .brand-file {
-    max-width: 120px;
-  }
-
-  .pane-actions .btn {
-    flex: 1 1 auto;
+    min-width: 76px;
   }
 }
 
@@ -610,111 +585,83 @@
   }
 
   .editor-topbar {
-    position: relative;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 6px;
     padding: 6px 8px;
-    min-height: auto;
-    flex-wrap: wrap;
-    overflow: visible;
+    min-height: 44px;
   }
 
   .editor-brand {
-    width: 100%;
-    flex: 1 1 100%;
     min-width: 0;
-    flex-wrap: wrap;
+    overflow: hidden;
+    gap: 6px;
   }
 
   .brand-logo {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .brand-icon {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .brand-name {
-    font-size: 10px;
-    letter-spacing: 0.8px;
+    font-size: 9px;
+    letter-spacing: 0.7px;
   }
 
   .brand-version {
-    font-size: 7px;
+    font-size: 6px;
     padding: 1px 4px;
   }
 
   .brand-file {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 2px;
-    font-size: 10px;
+    display: none;
   }
 
   .editor-user {
-    width: 100%;
-    flex: 1 1 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .rover-indicator {
-    order: 1;
-    min-width: 0;
-    text-align: left;
-    width: 100%;
+    gap: 4px;
+    margin-left: 0;
   }
 
   .user-avatar {
-    order: 2;
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
   }
 
   .user-info {
-    order: 3;
-    flex: 1;
-    min-width: 0;
+    display: none;
   }
 
-  .user-nick {
-    font-size: 10px;
-    max-width: 100px;
-  }
-
-  .user-role {
-    font-size: 8px;
-  }
-
-  .editor-user > .btn {
-    order: 4;
+  .rover-indicator {
+    min-width: auto;
+    text-align: left;
   }
 
   .rover-label {
-    font-size: 10px;
+    font-size: 8px;
   }
 
   .rover-state {
-    font-size: 11px;
+    font-size: 8px;
   }
 
-  /* Body general */
   .editor-body {
     flex-direction: column;
-    height: calc(100dvh - 92px);
+    height: calc(100dvh - 44px);
     overflow: hidden;
     min-height: 0;
   }
 
-  /* Editor arriba: darle más espacio */
+  /* editor con mejor espacio */
   .editor-pane {
     width: 100%;
     min-width: 0;
     min-height: 0;
-    flex: 0 0 48%;
+    flex: 0 0 50%;
     border-right: none;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
@@ -722,14 +669,14 @@
 
   .pane-header {
     align-items: flex-start;
-    padding: 6px 8px;
-    gap: 6px;
-    flex-shrink: 0;
+    padding: 5px 8px;
+    gap: 5px;
+    min-height: 34px;
   }
 
   .pane-title {
     width: 100%;
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 1px;
   }
 
@@ -743,14 +690,13 @@
   .pane-actions .btn {
     flex: 1 1 100%;
     min-width: 0;
-    font-size: 9px;
+    font-size: 8px;
     padding: 5px 6px;
   }
 
-  /* Área real del editor */
   .editor-pane > *:not(.pane-header):not(.manual-controls) {
     flex: 1 1 auto;
-    min-height: 140px;
+    min-height: 150px;
   }
 
   .editor-pane .code-editor,
@@ -761,47 +707,53 @@
   .editor-pane .cm-editor,
   .editor-pane .cm-scroller,
   .editor-pane textarea,
-  .editor-pane pre {
+  .editor-pane pre,
+  .monaco-editor .overflow-guard {
     width: 100% !important;
     height: 100% !important;
-    min-height: 140px !important;
+    min-height: 150px !important;
   }
 
-  /* Si existe contenedor interno del Monaco */
-  .monaco-editor .overflow-guard {
-    min-height: 140px !important;
-  }
-
+  /* controles manuales en una sola línea */
   .manual-controls {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 6px 8px;
-    gap: 4px;
-    flex-shrink: 0;
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .manual-controls::-webkit-scrollbar {
+    display: none;
   }
 
   .manual-controls .btn {
-    flex: 1 1 calc(50% - 4px);
-    min-width: 0;
-    font-size: 9px;
-    padding: 5px 6px;
+    flex: 0 0 auto;
+    min-width: max-content;
+    white-space: nowrap;
+    font-size: 8px;
+    padding: 5px 8px;
   }
 
-  /* Panel derecho: un poco más pequeño que antes */
   .editor-right {
     width: 100%;
     min-width: 0;
     min-height: 0;
-    flex: 1 1 52%;
+    flex: 1 1 50%;
     overflow: hidden;
   }
 
   .tab-bar {
     padding: 0 6px;
-    flex-shrink: 0;
+    gap: 4px;
   }
 
   .tab {
-    padding: 8px 10px;
-    font-size: 9px;
+    padding: 7px 10px;
+    font-size: 8px;
   }
 
   .right-panel {
@@ -811,12 +763,7 @@
     overflow: hidden;
   }
 
-  .right-panel > * {
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
-  /* Simulador más controlado */
+  /* simulador */
   .simulator-container,
   .simulator-wrapper,
   .simulator-view,
@@ -825,7 +772,7 @@
   .simulation-view,
   .simulation-container {
     flex: 1 1 auto;
-    min-height: 170px;
+    min-height: 160px;
     height: 100%;
   }
 
@@ -839,20 +786,53 @@
   .simulation-container canvas {
     width: 100% !important;
     height: 100% !important;
-    min-height: 170px !important;
+    min-height: 160px !important;
   }
 
-  .modal {
-    padding: 18px;
-  }
-
-  .program-item {
+  /* zoom a un lado en móvil */
+  .zoom-controls,
+  .simulator-zoom,
+  .simulation-zoom,
+  .sim-controls,
+  .simulator-controls,
+  .simulation-controls,
+  .canvas-controls,
+  .overlay-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    left: auto;
+    bottom: auto;
+    z-index: 30;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 4px;
+    width: auto;
+    max-width: 92px;
   }
 
-  .program-date {
-    font-size: 11px;
+  .zoom-controls .btn,
+  .simulator-zoom .btn,
+  .simulation-zoom .btn,
+  .sim-controls .btn,
+  .simulator-controls .btn,
+  .simulation-controls .btn,
+  .canvas-controls .btn,
+  .overlay-controls .btn,
+  .zoom-controls button,
+  .simulator-zoom button,
+  .simulation-zoom button,
+  .sim-controls button,
+  .simulator-controls button,
+  .simulation-controls button,
+  .canvas-controls button,
+  .overlay-controls button {
+    width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: 8px;
+    padding: 4px 6px;
   }
 
   .menu-dropdown,
@@ -871,83 +851,72 @@
    ========================= */
 @media (max-width: 480px) {
   .editor-topbar {
-    padding: 6px 8px;
-    gap: 6px;
+    grid-template-columns: auto 1fr auto auto;
+    padding: 5px 6px;
+    gap: 5px;
+    min-height: 40px;
   }
 
   .brand-logo {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   .brand-icon {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .brand-name {
-    font-size: 9px;
-    letter-spacing: 0.6px;
+    font-size: 8px;
+    letter-spacing: 0.5px;
   }
 
   .brand-version {
-    font-size: 7px;
+    font-size: 6px;
   }
 
-  .brand-file {
-    font-size: 9px;
-  }
-
-  .user-info {
-    display: none;
+  .user-avatar {
+    width: 16px;
+    height: 16px;
   }
 
   .rover-label {
-    font-size: 9px;
+    font-size: 7px;
   }
 
   .rover-state {
-    font-size: 10px;
+    font-size: 7px;
   }
 
   .editor-body {
-    height: calc(100dvh - 86px);
+    height: calc(100dvh - 40px);
   }
 
   .editor-pane {
-    flex: 0 0 50%;
+    flex: 0 0 52%;
   }
 
   .editor-right {
-    flex: 1 1 50%;
-  }
-
-  .pane-header {
-    padding: 6px 8px;
+    flex: 1 1 48%;
   }
 
   .pane-actions .btn {
-    flex: 1 1 100%;
-    font-size: 8px;
+    font-size: 7px;
     padding: 4px 6px;
   }
 
   .manual-controls .btn {
-    flex: 1 1 100%;
-    font-size: 8px;
-    padding: 4px 6px;
-  }
-
-  .tab-bar {
-    padding: 0 4px;
+    font-size: 7px;
+    padding: 4px 7px;
   }
 
   .tab {
-    padding: 7px 8px;
-    font-size: 8px;
+    padding: 6px 8px;
+    font-size: 7px;
   }
 
   .editor-pane > *:not(.pane-header):not(.manual-controls) {
-    min-height: 120px;
+    min-height: 130px;
   }
 
   .editor-pane .code-editor,
@@ -960,7 +929,7 @@
   .editor-pane textarea,
   .editor-pane pre,
   .monaco-editor .overflow-guard {
-    min-height: 120px !important;
+    min-height: 130px !important;
   }
 
   .simulator-container,
@@ -970,7 +939,7 @@
   .simulation-panel,
   .simulation-view,
   .simulation-container {
-    min-height: 150px;
+    min-height: 145px;
   }
 
   .right-panel canvas,
@@ -981,14 +950,40 @@
   .simulation-panel canvas,
   .simulation-view canvas,
   .simulation-container canvas {
-    min-height: 150px !important;
+    min-height: 145px !important;
   }
 
-  .modal-actions {
-    flex-direction: column;
+  .zoom-controls,
+  .simulator-zoom,
+  .simulation-zoom,
+  .sim-controls,
+  .simulator-controls,
+  .simulation-controls,
+  .canvas-controls,
+  .overlay-controls {
+    top: 6px;
+    right: 6px;
+    max-width: 82px;
+    gap: 3px;
   }
 
-  .modal-actions .btn {
-    width: 100%;
+  .zoom-controls .btn,
+  .simulator-zoom .btn,
+  .simulation-zoom .btn,
+  .sim-controls .btn,
+  .simulator-controls .btn,
+  .simulation-controls .btn,
+  .canvas-controls .btn,
+  .overlay-controls .btn,
+  .zoom-controls button,
+  .simulator-zoom button,
+  .simulation-zoom button,
+  .sim-controls button,
+  .simulator-controls button,
+  .simulation-controls button,
+  .canvas-controls button,
+  .overlay-controls button {
+    font-size: 7px;
+    padding: 3px 5px;
   }
 }

@@ -1,146 +1,107 @@
-/* =========================
-   MENUBAR
-   ========================= */
-
 .menubar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   position: relative;
-  z-index: 1100;
+  z-index: 1200;
+  min-width: 0;
   overflow: visible;
-  min-width: max-content;
 }
 
-/* Cada botón principal */
 .menu-item {
   position: relative;
   flex-shrink: 0;
-  overflow: visible;
 }
 
 .menu-btn {
-  appearance: none;
-  border: none;
   background: transparent;
-  color: var(--text-primary, #cfe8ff);
-  font-family: var(--font-display, monospace);
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-display);
   font-size: 12px;
   letter-spacing: 1px;
   padding: 8px 10px;
   cursor: pointer;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
   transition: 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .menu-btn:hover,
 .menu-btn.active {
-  color: var(--accent-cyan, #00d9ff);
-  border-bottom-color: var(--accent-cyan, #00d9ff);
+  color: var(--accent-cyan);
 }
 
-/* Dropdown real que usa tu JSX */
 .dropdown {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
   min-width: 240px;
-  max-width: 320px;
-  background: rgba(3, 14, 32, 0.98);
-  border: 1px solid rgba(0, 217, 255, 0.28);
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(0, 217, 255, 0.08) inset;
-  backdrop-filter: blur(8px);
-  z-index: 9999;
-  overflow: hidden;
-  border-radius: 6px;
+  max-width: min(320px, calc(100vw - 24px));
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  z-index: 5000;
+  padding: 6px 0;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-/* Item del dropdown */
 .dropdown-item {
-  appearance: none;
   width: 100%;
-  border: none;
-  background: transparent;
-  color: var(--text-primary, #d8ecff);
   display: flex;
   align-items: center;
   gap: 10px;
-  text-align: left;
-  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 10px 14px;
   cursor: pointer;
-  font-family: var(--font-mono, monospace);
+  text-align: left;
   font-size: 12px;
-  transition: 0.18s ease;
+  white-space: nowrap;
 }
 
-.dropdown-item:hover {
-  background: rgba(0, 217, 255, 0.1);
-  color: var(--accent-cyan, #00d9ff);
+.dropdown-item:hover:not(:disabled) {
+  background: var(--bg-card);
+  color: var(--accent-cyan);
 }
 
 .dropdown-item:disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.dropdown-item:disabled:hover {
-  background: transparent;
-  color: var(--text-primary, #d8ecff);
-}
-
-/* Separador */
-.sep {
-  height: 1px;
-  background: rgba(0, 217, 255, 0.15);
-  margin: 4px 0;
-}
-
-/* Icono y shortcut */
 .d-icon {
-  width: 18px;
-  text-align: center;
   flex-shrink: 0;
 }
 
 .d-shortcut {
   margin-left: auto;
-  font-size: 10px;
-  opacity: 0.65;
+  font-size: 11px;
+  color: var(--text-dim);
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sep {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
 }
 
 /* =========================
-   TABLET
-   ========================= */
-@media (max-width: 1024px) {
-  .menu-btn {
-    font-size: 11px;
-    padding: 8px 8px;
-  }
-
-  .dropdown {
-    min-width: 220px;
-  }
-}
-
-/* =========================
-   MOBILE
+   TABLET / MOBILE
    ========================= */
 @media (max-width: 768px) {
   .menubar {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    width: 100%;
     overflow-x: auto;
     overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
     scrollbar-width: none;
-    min-width: max-content;
-    position: relative;
-    z-index: 1200;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
   }
 
   .menubar::-webkit-scrollbar {
@@ -149,33 +110,22 @@
 
   .menu-item {
     flex-shrink: 0;
-    position: relative;
-    overflow: visible;
   }
 
   .menu-btn {
-    font-size: 11px;
-    padding: 8px 8px;
-    letter-spacing: 0.8px;
+    font-size: 9px;
+    padding: 6px 7px;
+    letter-spacing: 0.6px;
   }
 
   .dropdown {
-    position: fixed;
-    top: 58px;
-    left: 8px;
-    right: 8px;
-    min-width: auto;
-    max-width: none;
-    width: auto;
-    max-height: 65vh;
-    overflow-y: auto;
-    z-index: 10000;
-    border-radius: 8px;
+    min-width: 190px;
+    max-width: calc(100vw - 16px);
   }
 
   .dropdown-item {
-    padding: 12px 12px;
-    font-size: 12px;
+    font-size: 11px;
+    padding: 9px 10px;
   }
 
   .d-shortcut {
@@ -183,25 +133,23 @@
   }
 }
 
-/* =========================
-   SMALL MOBILE
-   ========================= */
 @media (max-width: 480px) {
   .menu-btn {
-    font-size: 10px;
-    padding: 8px 7px;
-    letter-spacing: 0.6px;
+    font-size: 8px;
+    padding: 5px 6px;
+    letter-spacing: 0.5px;
   }
 
   .dropdown {
-    top: 54px;
-    left: 6px;
-    right: 6px;
-    max-height: 60vh;
+    min-width: 180px;
   }
 
   .dropdown-item {
-    font-size: 11px;
-    padding: 11px 10px;
+    font-size: 10px;
+    padding: 8px 9px;
+  }
+
+  .d-shortcut {
+    font-size: 8px;
   }
 }

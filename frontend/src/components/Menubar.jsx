@@ -79,7 +79,7 @@ export default function Menubar({
                   <span className="d-shortcut">{item.shortcut}</span>
                 )}
               </button>
-            )
+            ),
           )}
         </div>
       )}
@@ -91,10 +91,20 @@ export default function Menubar({
       "ARCHIVO",
       [
         { icon: "📄", label: "Nuevo", action: onNew, shortcut: "Ctrl+N" },
-        { icon: "📂", label: "Abrir (.umgpp)", action: onOpen, shortcut: "Ctrl+O" },
+        {
+          icon: "📂",
+          label: "Abrir (.umgpp)",
+          action: onOpen,
+          shortcut: "Ctrl+O",
+        },
         { icon: "☁️", label: "Abrir del servidor", action: onOpenServer },
         "---",
-        { icon: "💾", label: "Guardar (.umgpp)", action: onSave, shortcut: "Ctrl+S" },
+        {
+          icon: "💾",
+          label: "Guardar (.umgpp)",
+          action: onSave,
+          shortcut: "Ctrl+S",
+        },
         { icon: "☁️", label: "Guardar en servidor", action: onSaveServer },
         "---",
         { icon: "🖨", label: "Imprimir", action: onPrint, shortcut: "Ctrl+P" },
@@ -211,7 +221,7 @@ export default function Menubar({
         },
       ],
     ],
-    ...((user?.role === "admin" || user?.role === "supervisor")
+    ...(user?.role === "admin" || user?.role === "supervisor"
       ? [
           [
             "ADMIN",
