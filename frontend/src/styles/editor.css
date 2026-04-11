@@ -4,7 +4,7 @@
 
 :root {
   --topbar-height-desktop: 52px;
-  --topbar-height-mobile: 46px;
+  --topbar-height-mobile: 64px;
   --console-height-desktop: 90px;
   --console-height-mobile: 72px;
   --console-height-small-mobile: 64px;
@@ -624,7 +624,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 8px;
+    padding: 8px 8px;
     min-height: var(--topbar-height-mobile);
     height: var(--topbar-height-mobile);
     overflow-x: auto;
@@ -717,7 +717,7 @@
     width: 100%;
     min-width: 0;
     min-height: 0;
-    flex: 0 0 46%;
+    flex: 0 0 48%;
     border-right: none;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
@@ -725,9 +725,9 @@
 
   .pane-header {
     align-items: flex-start;
-    padding: 5px 8px;
+    padding: 8px 8px 6px;
     gap: 5px;
-    min-height: 34px;
+    min-height: 54px;
   }
 
   .pane-title {
@@ -747,7 +747,7 @@
     flex: 1 1 100%;
     min-width: 0;
     font-size: 8px;
-    padding: 5px 6px;
+    padding: 6px 6px;
   }
 
   .editor-pane > *:not(.pane-header):not(.manual-controls) {
@@ -799,7 +799,7 @@
     width: 100%;
     min-width: 0;
     min-height: 0;
-    flex: 1 1 54%;
+    flex: 1 1 52%;
     overflow: hidden;
   }
 
@@ -918,12 +918,16 @@
    SMALL MOBILE
    ========================= */
 @media (max-width: 480px) {
+  :root {
+    --topbar-height-mobile: 62px;
+  }
+
   .editor-root {
     padding-top: var(--topbar-height-mobile);
   }
 
   .editor-topbar {
-    padding: 5px 6px;
+    padding: 8px 6px;
     gap: 5px;
     min-height: var(--topbar-height-mobile);
     height: var(--topbar-height-mobile);
@@ -965,16 +969,21 @@
   }
 
   .editor-pane {
-    flex: 0 0 45%;
+    flex: 0 0 48%;
   }
 
   .editor-right {
-    flex: 1 1 55%;
+    flex: 1 1 52%;
+  }
+
+  .pane-header {
+    min-height: 58px;
+    padding: 8px 8px 6px;
   }
 
   .pane-actions .btn {
     font-size: 7px;
-    padding: 4px 6px;
+    padding: 5px 6px;
   }
 
   .manual-controls .btn {

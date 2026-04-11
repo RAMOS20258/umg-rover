@@ -8,6 +8,9 @@
   overflow: visible;
 }
 
+/* =========================
+   ITEMS
+   ========================= */
 .menu-item {
   position: relative;
   flex-shrink: 0;
@@ -19,8 +22,8 @@
   color: var(--text-primary);
   font-family: var(--font-display);
   font-size: 12px;
-  letter-spacing: 1px;
-  padding: 8px 10px;
+  letter-spacing: 0.9px;
+  padding: 8px 8px;
   cursor: pointer;
   transition: 0.2s ease;
   white-space: nowrap;
@@ -32,11 +35,14 @@
   color: var(--accent-cyan);
 }
 
+/* =========================
+   DROPDOWN
+   ========================= */
 .dropdown {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  min-width: 240px;
+  min-width: 230px;
   max-width: min(320px, calc(100vw - 24px));
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -55,7 +61,7 @@
   background: transparent;
   border: none;
   color: var(--text-primary);
-  padding: 10px 14px;
+  padding: 10px 12px;
   cursor: pointer;
   text-align: left;
   font-size: 12px;
@@ -78,7 +84,7 @@
 
 .d-shortcut {
   margin-left: auto;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-dim);
   white-space: nowrap;
   flex-shrink: 0;
@@ -91,36 +97,21 @@
 }
 
 /* =========================
-   TABLET / MOBILE
+   TABLET
    ========================= */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .menubar {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: visible;
-    white-space: nowrap;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
-  }
-
-  .menubar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .menu-item {
-    flex-shrink: 0;
+    gap: 1px;
   }
 
   .menu-btn {
-    font-size: 9px;
-    padding: 6px 7px;
-    letter-spacing: 0.6px;
+    font-size: 10px;
+    padding: 7px 6px;
+    letter-spacing: 0.7px;
   }
 
   .dropdown {
-    min-width: 190px;
-    max-width: calc(100vw - 16px);
+    min-width: 210px;
   }
 
   .dropdown-item {
@@ -133,15 +124,38 @@
   }
 }
 
-@media (max-width: 480px) {
+/* =========================
+   MOBILE
+   ========================= */
+@media (max-width: 768px) {
+  .menubar {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1px;
+    gap: 0;
+  }
+
+  .menubar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .menu-item {
+    flex-shrink: 0;
+  }
+
   .menu-btn {
     font-size: 8px;
-    padding: 5px 6px;
-    letter-spacing: 0.5px;
+    padding: 6px 5px;
+    letter-spacing: 0.45px;
   }
 
   .dropdown {
-    min-width: 180px;
+    min-width: 185px;
+    max-width: calc(100vw - 16px);
   }
 
   .dropdown-item {
@@ -151,5 +165,29 @@
 
   .d-shortcut {
     font-size: 8px;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+   ========================= */
+@media (max-width: 480px) {
+  .menu-btn {
+    font-size: 7px;
+    padding: 5px 4px;
+    letter-spacing: 0.35px;
+  }
+
+  .dropdown {
+    min-width: 170px;
+  }
+
+  .dropdown-item {
+    font-size: 9px;
+    padding: 8px 8px;
+  }
+
+  .d-shortcut {
+    font-size: 7px;
   }
 }
