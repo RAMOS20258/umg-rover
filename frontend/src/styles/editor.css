@@ -45,7 +45,14 @@
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.editor-topbar::-webkit-scrollbar {
+  display: none;
 }
 
 .editor-brand {
@@ -53,7 +60,7 @@
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
-  min-width: 0;
+  min-width: max-content;
 }
 
 .brand-logo {
@@ -103,6 +110,13 @@
   white-space: nowrap;
 }
 
+/* Menubar dentro del topbar */
+.editor-topbar .menubar {
+  flex: 0 0 auto;
+  min-width: max-content;
+  overflow: visible;
+}
+
 /* usuario */
 .editor-user {
   display: flex;
@@ -110,8 +124,8 @@
   justify-content: flex-end;
   gap: 6px;
   flex: 0 0 auto;
-  min-width: 0;
-  margin-left: auto;
+  min-width: max-content;
+  margin-left: 0;
 }
 
 .user-avatar {
@@ -183,7 +197,7 @@
   color: #ff4d6d;
 }
 
-/* Menús desplegables */
+/* Dropdown support */
 .menu-item,
 .topbar-item,
 .nav-item,
@@ -350,8 +364,6 @@
 }
 
 .right-panel > * {
-  flex: 1 1 auto;
-  min-height: 0;
   min-width: 0;
 }
 
@@ -394,7 +406,7 @@
   object-fit: contain;
 }
 
-/* Zoom / controles del simulador: escritorio */
+/* Controles del simulador */
 .zoom-controls,
 .simulator-zoom,
 .simulation-zoom,
@@ -409,13 +421,21 @@
   flex-wrap: wrap;
 }
 
-/* Consola / Tokens */
+/* Consola / Tokens / Output */
 .console-panel,
 .console-container,
-.tokens-panel,
-.tokens-container,
 .output-panel,
 .output-container {
+  flex: 0 0 90px;
+  min-height: 90px;
+  max-height: 90px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tokens-panel,
+.tokens-container {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -585,18 +605,26 @@
   }
 
   .editor-topbar {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    display: flex;
     align-items: center;
     gap: 6px;
     padding: 6px 8px;
     min-height: 44px;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .editor-topbar::-webkit-scrollbar {
+    display: none;
   }
 
   .editor-brand {
-    min-width: 0;
-    overflow: hidden;
+    min-width: max-content;
+    overflow: visible;
     gap: 6px;
+    flex: 0 0 auto;
   }
 
   .brand-logo {
@@ -622,9 +650,18 @@
     display: none;
   }
 
+  .editor-topbar .menubar {
+    flex: 0 0 auto;
+    min-width: max-content;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
   .editor-user {
     gap: 4px;
     margin-left: 0;
+    flex: 0 0 auto;
+    min-width: max-content;
   }
 
   .user-avatar {
@@ -656,12 +693,12 @@
     min-height: 0;
   }
 
-  /* editor con mejor espacio */
+  /* Editor */
   .editor-pane {
     width: 100%;
     min-width: 0;
     min-height: 0;
-    flex: 0 0 50%;
+    flex: 0 0 46%;
     border-right: none;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
@@ -714,7 +751,7 @@
     min-height: 150px !important;
   }
 
-  /* controles manuales en una sola línea */
+  /* Manual controls en una sola línea */
   .manual-controls {
     display: flex;
     flex-wrap: nowrap;
@@ -738,11 +775,12 @@
     padding: 5px 8px;
   }
 
+  /* Panel derecho */
   .editor-right {
     width: 100%;
     min-width: 0;
     min-height: 0;
-    flex: 1 1 50%;
+    flex: 1 1 54%;
     overflow: hidden;
   }
 
@@ -763,7 +801,7 @@
     overflow: hidden;
   }
 
-  /* simulador */
+  /* Simulador */
   .simulator-container,
   .simulator-wrapper,
   .simulator-view,
@@ -772,7 +810,7 @@
   .simulation-view,
   .simulation-container {
     flex: 1 1 auto;
-    min-height: 160px;
+    min-height: 180px;
     height: 100%;
   }
 
@@ -786,10 +824,10 @@
   .simulation-container canvas {
     width: 100% !important;
     height: 100% !important;
-    min-height: 160px !important;
+    min-height: 180px !important;
   }
 
-  /* zoom a un lado en móvil */
+  /* Zoom a un lado en móvil */
   .zoom-controls,
   .simulator-zoom,
   .simulation-zoom,
@@ -835,6 +873,16 @@
     padding: 4px 6px;
   }
 
+  /* Bitácora más abajo y compacta */
+  .console-panel,
+  .console-container,
+  .output-panel,
+  .output-container {
+    flex: 0 0 72px;
+    min-height: 72px;
+    max-height: 72px;
+  }
+
   .menu-dropdown,
   .dropdown-menu,
   .topbar-dropdown,
@@ -851,7 +899,6 @@
    ========================= */
 @media (max-width: 480px) {
   .editor-topbar {
-    grid-template-columns: auto 1fr auto auto;
     padding: 5px 6px;
     gap: 5px;
     min-height: 40px;
@@ -893,11 +940,11 @@
   }
 
   .editor-pane {
-    flex: 0 0 52%;
+    flex: 0 0 45%;
   }
 
   .editor-right {
-    flex: 1 1 48%;
+    flex: 1 1 55%;
   }
 
   .pane-actions .btn {
@@ -939,7 +986,7 @@
   .simulation-panel,
   .simulation-view,
   .simulation-container {
-    min-height: 145px;
+    min-height: 190px;
   }
 
   .right-panel canvas,
@@ -950,7 +997,7 @@
   .simulation-panel canvas,
   .simulation-view canvas,
   .simulation-container canvas {
-    min-height: 145px !important;
+    min-height: 190px !important;
   }
 
   .zoom-controls,
@@ -985,5 +1032,14 @@
   .overlay-controls button {
     font-size: 7px;
     padding: 3px 5px;
+  }
+
+  .console-panel,
+  .console-container,
+  .output-panel,
+  .output-container {
+    flex: 0 0 64px;
+    min-height: 64px;
+    max-height: 64px;
   }
 }
