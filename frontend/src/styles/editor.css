@@ -2,6 +2,14 @@
    EDITOR RESPONSIVE LAYOUT
    ========================= */
 
+:root {
+  --topbar-height-desktop: 52px;
+  --topbar-height-mobile: 46px;
+  --console-height-desktop: 90px;
+  --console-height-mobile: 72px;
+  --console-height-small-mobile: 64px;
+}
+
 /* Root */
 .editor-root {
   display: flex;
@@ -36,12 +44,12 @@
    ========================= */
 .editor-topbar {
   position: relative;
-  z-index: 1000;
+  z-index: 3000;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  min-height: 52px;
+  min-height: var(--topbar-height-desktop);
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -209,13 +217,14 @@
 .menu-dropdown,
 .dropdown-menu,
 .topbar-dropdown,
-.submenu {
+.submenu,
+.dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   z-index: 5000;
   min-width: 180px;
-  max-width: min(280px, calc(100vw - 24px));
+  max-width: min(320px, calc(100vw - 24px));
   background: var(--bg-panel);
   border: 1px solid var(--border);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
@@ -231,6 +240,7 @@
   z-index: 1;
   display: flex;
   flex: 1 1 auto;
+  height: calc(100dvh - var(--topbar-height-desktop));
   overflow: hidden;
   gap: 0;
   min-height: 0;
@@ -426,9 +436,9 @@
 .console-container,
 .output-panel,
 .output-container {
-  flex: 0 0 90px;
-  min-height: 90px;
-  max-height: 90px;
+  flex: 0 0 var(--console-height-desktop);
+  min-height: var(--console-height-desktop);
+  max-height: var(--console-height-desktop);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -598,6 +608,7 @@
   .editor-root {
     height: 100dvh;
     overflow: hidden;
+    padding-top: var(--topbar-height-mobile);
   }
 
   .scanline {
@@ -605,15 +616,23 @@
   }
 
   .editor-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 4000;
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 6px 8px;
-    min-height: 44px;
+    min-height: var(--topbar-height-mobile);
+    height: var(--topbar-height-mobile);
     overflow-x: auto;
     overflow-y: visible;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
   }
 
   .editor-topbar::-webkit-scrollbar {
@@ -688,7 +707,7 @@
 
   .editor-body {
     flex-direction: column;
-    height: calc(100dvh - 44px);
+    height: calc(100dvh - var(--topbar-height-mobile));
     overflow: hidden;
     min-height: 0;
   }
@@ -878,15 +897,16 @@
   .console-container,
   .output-panel,
   .output-container {
-    flex: 0 0 72px;
-    min-height: 72px;
-    max-height: 72px;
+    flex: 0 0 var(--console-height-mobile);
+    min-height: var(--console-height-mobile);
+    max-height: var(--console-height-mobile);
   }
 
   .menu-dropdown,
   .dropdown-menu,
   .topbar-dropdown,
-  .submenu {
+  .submenu,
+  .dropdown {
     left: 0;
     right: auto;
     min-width: 160px;
@@ -898,10 +918,15 @@
    SMALL MOBILE
    ========================= */
 @media (max-width: 480px) {
+  .editor-root {
+    padding-top: var(--topbar-height-mobile);
+  }
+
   .editor-topbar {
     padding: 5px 6px;
     gap: 5px;
-    min-height: 40px;
+    min-height: var(--topbar-height-mobile);
+    height: var(--topbar-height-mobile);
   }
 
   .brand-logo {
@@ -936,7 +961,7 @@
   }
 
   .editor-body {
-    height: calc(100dvh - 40px);
+    height: calc(100dvh - var(--topbar-height-mobile));
   }
 
   .editor-pane {
@@ -1038,8 +1063,8 @@
   .console-container,
   .output-panel,
   .output-container {
-    flex: 0 0 64px;
-    min-height: 64px;
-    max-height: 64px;
+    flex: 0 0 var(--console-height-small-mobile);
+    min-height: var(--console-height-small-mobile);
+    max-height: var(--console-height-small-mobile);
   }
 }
